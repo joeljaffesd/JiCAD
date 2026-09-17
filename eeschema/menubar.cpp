@@ -20,6 +20,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#include <pcad_mode.h>
 #include <bitmaps.h>
 #include <file_history.h>
 #include <kiface_base.h>
@@ -377,6 +378,128 @@ void SCH_EDIT_FRAME::doReCreateMenuBar()
 
     //-- Menubar -------------------------------------------------------------
     //
+    // WiCAD: in P-CAD mode the menu bar follows P-CAD 2006's Schematic editor:
+    //   File | Edit | View | Place | Rewire | Options | Library | Utils | Simulate | Help
+    // P-CAD's commands come first in P-CAD's order and wording (pcad_vocabulary); KiCad commands
+    // without a P-CAD counterpart follow, so nothing is lost.
+    if( IsPCadMode() )
+    {
+        //-- Place -----------------------------------------------------------
+        ACTION_MENU* pcadPlace = new ACTION_MENU( false, selTool );
+        pcadPlace->Add( SCH_ACTIONS::placeSymbol );                 // Part
+        pcadPlace->Add( SCH_ACTIONS::drawWire );                    // Wire
+        pcadPlace->Add( SCH_ACTIONS::drawBus );                     // Bus
+        pcadPlace->Add( SCH_ACTIONS::placeBusWireEntry );
+        pcadPlace->Add( SCH_ACTIONS::placePower );                  // Port
+        pcadPlace->AppendSeparator();
+        pcadPlace->Add( SCH_ACTIONS::drawLines );                   // Line
+        pcadPlace->Add( SCH_ACTIONS::drawArc );                     // Arc
+        pcadPlace->Add( SCH_ACTIONS::drawPolygon );                 // Polygon
+        pcadPlace->AppendSeparator();
+        pcadPlace->Add( SCH_ACTIONS::placeSchematicText );          // Text
+        pcadPlace->AppendSeparator();
+        pcadPlace->Add( SCH_ACTIONS::placeJunction );
+        pcadPlace->Add( SCH_ACTIONS::placeNoConnect );
+        pcadPlace->Add( SCH_ACTIONS::placeLabel );
+        pcadPlace->Add( SCH_ACTIONS::placeGlobalLabel );
+        pcadPlace->Add( SCH_ACTIONS::placeClassLabel );
+        pcadPlace->Add( SCH_ACTIONS::placeHierLabel );
+        pcadPlace->Add( SCH_ACTIONS::drawSheet );
+        pcadPlace->Add( SCH_ACTIONS::placeSheetPin );
+        pcadPlace->Add( SCH_ACTIONS::syncAllSheetsPins );
+        pcadPlace->Add( SCH_ACTIONS::importSheet );
+        pcadPlace->Add( SCH_ACTIONS::drawRuleArea );
+        pcadPlace->AppendSeparator();
+        pcadPlace->Add( SCH_ACTIONS::drawRectangle );
+        pcadPlace->Add( SCH_ACTIONS::drawCircle );
+        pcadPlace->Add( SCH_ACTIONS::drawBezier );
+        pcadPlace->Add( SCH_ACTIONS::drawTextBox );
+        pcadPlace->Add( SCH_ACTIONS::drawTable );
+        pcadPlace->Add( SCH_ACTIONS::placeImage );
+
+        //-- Rewire ----------------------------------------------------------
+        ACTION_MENU* pcadRewire = new ACTION_MENU( false, selTool );
+        pcadRewire->Add( SCH_ACTIONS::drawWire, ACTION_MENU::NORMAL, _( "&Manual" ) );
+
+        //-- Options ---------------------------------------------------------
+        ACTION_MENU* pcadOptions = new ACTION_MENU( false, selTool );
+        pcadOptions->Add( ACTIONS::openPreferences );               // Configure...
+        pcadOptions->Add( ACTIONS::gridProperties );                // Grids...
+        pcadOptions->AppendSeparator();
+        pcadOptions->Add( SCH_ACTIONS::schematicSetup );            // Design Rules... (also net classes)
+        pcadOptions->AppendSeparator();
+        pcadOptions->Add( SCH_ACTIONS::showHierarchy, ACTION_MENU::CHECK );       // Sheets
+        pcadOptions->Add( ACTIONS::showProperties,    ACTION_MENU::CHECK );
+        pcadOptions->AppendSeparator();
+        pcadOptions->Add( ACTIONS::configurePaths );
+        pcadOptions->AppendSeparator();
+        AddMenuLanguageList( pcadOptions, selTool );
+
+        //-- Library ---------------------------------------------------------
+        ACTION_MENU* pcadLibrary = new ACTION_MENU( false, selTool );
+        pcadLibrary->Add( ACTIONS::showSymbolLibTable );            // Library Setup (Symbols)...
+        pcadLibrary->Add( ACTIONS::showDesignBlockLibTable );
+        pcadLibrary->Add( ACTIONS::showSymbolBrowser );
+        pcadLibrary->Add( ACTIONS::showSymbolEditor );              // WiCAD Symbol Editor...
+        pcadLibrary->AppendSeparator();
+        pcadLibrary->Add( SCH_ACTIONS::updateSymbols );
+        pcadLibrary->Add( SCH_ACTIONS::editSymbolLibraryLinks );
+        pcadLibrary->Add( SCH_ACTIONS::rescueSymbols );
+        pcadLibrary->Add( SCH_ACTIONS::remapSymbols );
+        pcadLibrary->Add( SCH_ACTIONS::diffSymbol );
+
+        //-- Utils -----------------------------------------------------------
+        ACTION_MENU* pcadUtils = new ACTION_MENU( false, selTool );
+        pcadUtils->Add( SCH_ACTIONS::annotate );                    // Renumber...
+        pcadUtils->Add( SCH_ACTIONS::incrementAnnotations );
+        pcadUtils->AppendSeparator();
+        pcadUtils->Add( SCH_ACTIONS::runERC );                      // ERC...
+        pcadUtils->Add( ACTIONS::prevMarker );                      // Find Errors
+        pcadUtils->Add( ACTIONS::nextMarker );
+        pcadUtils->Add( ACTIONS::excludeMarker );
+        pcadUtils->AppendSeparator();
+        pcadUtils->Add( ACTIONS::updatePcbFromSchematic )->Enable( !Kiface().IsSingle() );   // ECOs to the board
+        pcadUtils->Add( ACTIONS::updateSchematicFromPcb )->Enable( !Kiface().IsSingle() );
+        pcadUtils->Add( SCH_ACTIONS::assignFootprints );
+        pcadUtils->Add( SCH_ACTIONS::editSymbolFields );
+        pcadUtils->Add( SCH_ACTIONS::generateBOM );
+        pcadUtils->Add( SCH_ACTIONS::generateBOMLegacy );
+        pcadUtils->Add( SCH_ACTIONS::createNetChain );
+        pcadUtils->AppendSeparator();
+        pcadUtils->Add( SCH_ACTIONS::showBusSyntaxHelp );
+        pcadUtils->AppendSeparator();
+        pcadUtils->Add( SCH_ACTIONS::showPcbNew );                  // WiCAD PCB...
+
+        if( !Kiface().IsSingle() )
+            pcadUtils->Add( ACTIONS::showProjectManager );
+
+        pcadUtils->Add( ACTIONS::showCalculatorTools );
+        pcadUtils->AppendSeparator();
+        pcadUtils->Add( submenuVariants->Clone() );                 // belongs to the stock Tools menu
+        pcadUtils->Add( ACTIONS::pluginsReload );
+
+        //-- Simulate --------------------------------------------------------
+        ACTION_MENU* pcadSimulate = new ACTION_MENU( false, selTool );
+        pcadSimulate->Add( SCH_ACTIONS::showSimulator );            // Run / Setup
+
+        // the stock menus these replace
+        delete placeMenu;
+        delete inspectMenu;
+        delete toolsMenu;
+        delete prefsMenu;
+
+        menuBar->Append( fileMenu,     _( "&File" ) );
+        menuBar->Append( editMenu,     _( "&Edit" ) );
+        menuBar->Append( viewMenu,     _( "&View" ) );
+        menuBar->Append( pcadPlace,    _( "&Place" ) );
+        menuBar->Append( pcadRewire,   _( "&Rewire" ) );
+        menuBar->Append( pcadOptions,  _( "&Options" ) );
+        menuBar->Append( pcadLibrary,  _( "&Library" ) );
+        menuBar->Append( pcadUtils,    _( "&Utils" ) );
+        menuBar->Append( pcadSimulate, _( "&Simulate" ) );
+    }
+    else
+    {
     menuBar->Append( fileMenu,    _( "&File" ) );
     menuBar->Append( editMenu,    _( "&Edit" ) );
     menuBar->Append( viewMenu,    _( "&View" ) );
@@ -384,6 +507,7 @@ void SCH_EDIT_FRAME::doReCreateMenuBar()
     menuBar->Append( inspectMenu, _( "&Inspect" ) );
     menuBar->Append( toolsMenu,   _( "&Tools" ) );
     menuBar->Append( prefsMenu,   _( "P&references" ) );
+    }
     AddStandardHelpMenu( menuBar );
 
     SetMenuBar( menuBar );

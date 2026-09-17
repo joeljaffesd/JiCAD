@@ -20,6 +20,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#include <pcad_mode.h>
 #include <advanced_config.h>
 #include <bitmaps.h>
 #include <file_history.h>
@@ -507,6 +508,223 @@ void PCB_EDIT_FRAME::doReCreateMenuBar()
 
     //--MenuBar -----------------------------------------------------------
     //
+    // WiCAD: in P-CAD mode the menu bar follows P-CAD 2006's PCB editor:
+    //   File | Edit | View | Place | Route | Options | Library | Utils | Help
+    // Each menu lists P-CAD's commands first, in P-CAD's order and wording (the wording comes from
+    // pcad_vocabulary), followed by the KiCad commands P-CAD has no counterpart for, so nothing is lost.
+    if( IsPCadMode() )
+    {
+        //-- Edit ------------------------------------------------------------
+        ACTION_MENU* pcadEdit = new ACTION_MENU( false, selTool );
+        pcadEdit->Add( ACTIONS::undo );
+        pcadEdit->Add( ACTIONS::redo );
+        pcadEdit->AppendSeparator();
+        pcadEdit->Add( ACTIONS::cut );
+        pcadEdit->Add( ACTIONS::copy );
+        pcadEdit->Add( ACTIONS::paste );
+        pcadEdit->Add( ACTIONS::pasteSpecial );
+        pcadEdit->AppendSeparator();
+        pcadEdit->Add( PCB_ACTIONS::properties );                   // Properties...
+        pcadEdit->Add( ACTIONS::doDelete );                         // Delete
+        pcadEdit->Add( PCB_ACTIONS::createArray );                  // Copy Matrix...
+        pcadEdit->AppendSeparator();
+
+        ACTION_MENU* componentSub = new ACTION_MENU( false, selTool );
+        componentSub->SetTitle( _( "C&omponent" ) );
+        componentSub->Add( PCB_ACTIONS::rotateCcw );
+        componentSub->Add( PCB_ACTIONS::rotateCw );
+        componentSub->Add( PCB_ACTIONS::flip );
+        componentSub->Add( PCB_ACTIONS::swap );                     // Swap Components
+        componentSub->Add( PCB_ACTIONS::changeFootprints );
+        pcadEdit->Add( componentSub );
+        pcadEdit->AppendSeparator();
+
+        pcadEdit->Add( ACTIONS::selectAll );
+        pcadEdit->Add( ACTIONS::unselectAll );
+        pcadEdit->Add( PCB_ACTIONS::clearHighlight );               // Unhighlight All
+        pcadEdit->AppendSeparator();
+
+        ACTION_MENU* unrouteSub = new ACTION_MENU( false, selTool );
+        unrouteSub->SetTitle( _( "Un&route" ) );
+        unrouteSub->Add( PCB_ACTIONS::unrouteSelected );
+        unrouteSub->Add( PCB_ACTIONS::globalDeletions );
+        pcadEdit->Add( unrouteSub );
+
+        ACTION_MENU* fixSub = new ACTION_MENU( false, selTool );
+        fixSub->SetTitle( _( "&Fix" ) );
+        fixSub->Add( PCB_ACTIONS::lock );                           // Fix
+        fixSub->Add( PCB_ACTIONS::unlock );                         // Unfix
+        pcadEdit->Add( fixSub );
+        pcadEdit->AppendSeparator();
+
+        pcadEdit->Add( PCB_ACTIONS::editFootprintFields );          // Components...
+        pcadEdit->Add( PCB_ACTIONS::showNetInspector );             // Nets...
+        pcadEdit->AppendSeparator();
+        pcadEdit->Add( ACTIONS::measureTool );                      // Measure
+        pcadEdit->Add( ACTIONS::selectionTool );                    // Select
+        pcadEdit->AppendSeparator();
+        pcadEdit->Add( ACTIONS::find );
+        pcadEdit->Add( PCB_ACTIONS::findByProperties );
+        pcadEdit->Add( PCB_ACTIONS::editTracksAndVias );
+        pcadEdit->Add( PCB_ACTIONS::editTextAndGraphics );
+        pcadEdit->Add( PCB_ACTIONS::editTeardrops );
+        pcadEdit->Add( PCB_ACTIONS::swapLayers );
+        pcadEdit->Add( PCB_ACTIONS::extendGraphic );
+        pcadEdit->Add( PCB_ACTIONS::trimGraphic );
+        pcadEdit->Add( ACTIONS::deleteTool );
+
+        //-- Place -----------------------------------------------------------
+        ACTION_MENU* pcadPlace = new ACTION_MENU( false, selTool );
+        pcadPlace->Add( PCB_ACTIONS::placeFootprint );              // Component
+        pcadPlace->Add( PCB_ACTIONS::localRatsnestTool );           // Connection
+        pcadPlace->Add( PCB_ACTIONS::drawVia );                     // Via
+        pcadPlace->AppendSeparator();
+        pcadPlace->Add( PCB_ACTIONS::drawLine );                    // Line
+        pcadPlace->Add( PCB_ACTIONS::drawArc );                     // Arc
+        pcadPlace->Add( PCB_ACTIONS::drawPolygon );                 // Polygon
+        pcadPlace->Add( PCB_ACTIONS::placePoint );                  // Point
+        pcadPlace->AppendSeparator();
+        pcadPlace->Add( PCB_ACTIONS::drawZone );                    // Copper Pour
+        pcadPlace->Add( PCB_ACTIONS::drawZoneCutout );              // Cutout
+        pcadPlace->Add( PCB_ACTIONS::drawRuleArea );                // Keepout
+        pcadPlace->AppendSeparator();
+        pcadPlace->Add( PCB_ACTIONS::placeText );                   // Text
+
+        ACTION_MENU* pcadDimension = new ACTION_MENU( false, selTool );
+        pcadDimension->SetTitle( _( "&Dimension" ) );
+        pcadDimension->SetIcon( BITMAPS::add_aligned_dimension );
+        pcadDimension->Add( PCB_ACTIONS::drawOrthogonalDimension );
+        pcadDimension->Add( PCB_ACTIONS::drawAlignedDimension );
+        pcadDimension->Add( PCB_ACTIONS::drawCenterDimension );
+        pcadDimension->Add( PCB_ACTIONS::drawRadialDimension );
+        pcadDimension->Add( PCB_ACTIONS::drawLeader );
+        pcadPlace->Add( pcadDimension );                            // Dimension
+        pcadPlace->AppendSeparator();
+
+        pcadPlace->Add( PCB_ACTIONS::drawRectangle );
+        pcadPlace->Add( PCB_ACTIONS::drawCircle );
+        pcadPlace->Add( PCB_ACTIONS::drawBezier );
+        pcadPlace->Add( PCB_ACTIONS::drawTextBox );
+        pcadPlace->Add( PCB_ACTIONS::drawTable );
+        pcadPlace->Add( PCB_ACTIONS::placeReferenceImage );
+        pcadPlace->Add( PCB_ACTIONS::placeBarcode );
+        pcadPlace->Add( PCB_ACTIONS::placeViaStack );
+        pcadPlace->Add( PCB_ACTIONS::drawCopperThievingZone );
+        pcadPlace->AppendSeparator();
+        pcadPlace->Add( PCB_ACTIONS::placeStackup );
+        pcadPlace->Add( PCB_ACTIONS::placeDrillChart );
+        pcadPlace->Add( PCB_ACTIONS::placeDrillMap );
+        pcadPlace->Add( PCB_ACTIONS::placeCharacteristics );
+        pcadPlace->AppendSeparator();
+        pcadPlace->Add( ACTIONS::gridSetOrigin );
+        pcadPlace->Add( ACTIONS::gridResetOrigin );
+        pcadPlace->Add( PCB_ACTIONS::drillOrigin );
+        pcadPlace->Add( PCB_ACTIONS::drillResetOrigin );
+
+        //-- Route -----------------------------------------------------------
+        ACTION_MENU* pcadRoute = new ACTION_MENU( false, selTool );
+
+        ACTION_MENU* autorouterSub = new ACTION_MENU( false, selTool );
+        autorouterSub->SetTitle( _( "&Autorouters" ) );
+        autorouterSub->Add( PCB_ACTIONS::exportSpecctraDSN,     ACTION_MENU::NORMAL, _( "Export Specctra DSN..." ) );
+        autorouterSub->Add( PCB_ACTIONS::importSpecctraSession, ACTION_MENU::NORMAL, _( "Import Specctra SES..." ) );
+        pcadRoute->Add( autorouterSub );                            // Autorouters...
+        pcadRoute->AppendSeparator();
+        pcadRoute->Add( PCB_ACTIONS::routeSingleTrack );            // Manual
+        pcadRoute->Add( PCB_ACTIONS::routeDiffPair );               // Differential Pair
+        pcadRoute->AppendSeparator();
+        pcadRoute->Add( PCB_ACTIONS::tuneSingleTrack );
+        pcadRoute->Add( PCB_ACTIONS::tuneDiffPair );
+        pcadRoute->Add( PCB_ACTIONS::tuneSkew );
+        pcadRoute->AppendSeparator();
+        pcadRoute->Add( PCB_ACTIONS::selectLayerPair );             // Layer Pairs...
+        pcadRoute->Add( PCB_ACTIONS::routerSettingsDialog );        // Route Options...
+
+        //-- Options ---------------------------------------------------------
+        ACTION_MENU* pcadOptions = new ACTION_MENU( false, selTool );
+        pcadOptions->Add( ACTIONS::openPreferences );               // Configure...
+        pcadOptions->Add( ACTIONS::gridProperties );                // Grids...
+        pcadOptions->Add( ACTIONS::gridOrigin );
+        pcadOptions->AppendSeparator();
+        pcadOptions->Add( PCB_ACTIONS::showLayersManager, ACTION_MENU::CHECK );   // Layers...
+        pcadOptions->Add( ACTIONS::showProperties,        ACTION_MENU::CHECK );
+        pcadOptions->AppendSeparator();
+        pcadOptions->Add( PCB_ACTIONS::boardSetup );                // Design Rules... (also net classes, text and via sizes)
+        pcadOptions->Add( PCB_ACTIONS::drcRuleEditor );
+        pcadOptions->Add( PCB_ACTIONS::zonesManager );
+        pcadOptions->AppendSeparator();
+        pcadOptions->Add( ACTIONS::configurePaths );
+        pcadOptions->AppendSeparator();
+        AddMenuLanguageList( pcadOptions, selTool );
+
+        //-- Library ---------------------------------------------------------
+        ACTION_MENU* pcadLibrary = new ACTION_MENU( false, selTool );
+        pcadLibrary->Add( ACTIONS::showFootprintLibTable );         // Library Setup (Patterns)...
+        pcadLibrary->Add( ACTIONS::showFootprintBrowser );
+        pcadLibrary->Add( ACTIONS::showFootprintEditor );           // WiCAD Pattern Editor...
+        pcadLibrary->AppendSeparator();
+        pcadLibrary->Add( PCB_ACTIONS::updateFootprints );          // Force Update...
+        pcadLibrary->Add( PCB_ACTIONS::changeFootprints );
+        pcadLibrary->Add( PCB_ACTIONS::exportFootprints );
+        pcadLibrary->Add( PCB_ACTIONS::migrate3DModels );
+        pcadLibrary->Add( PCB_ACTIONS::collect3DModels );
+
+        //-- Utils -----------------------------------------------------------
+        ACTION_MENU* pcadUtils = new ACTION_MENU( false, selTool );
+        pcadUtils->Add( PCB_ACTIONS::boardReannotate );             // Renumber Components...
+        pcadUtils->AppendSeparator();
+        pcadUtils->Add( PCB_ACTIONS::runDRC );                      // DRC...
+        pcadUtils->Add( ACTIONS::prevMarker );                      // Find Errors
+        pcadUtils->Add( ACTIONS::nextMarker );
+        pcadUtils->Add( ACTIONS::excludeMarker );
+        pcadUtils->AppendSeparator();
+        pcadUtils->Add( ACTIONS::updatePcbFromSchematic )->Enable( !Kiface().IsSingle() );   // Load Netlist / ECO
+        pcadUtils->Add( ACTIONS::updateSchematicFromPcb )->Enable( !Kiface().IsSingle() );
+        pcadUtils->Add( PCB_ACTIONS::importNetlist );               // Load Netlist...
+        pcadUtils->Add( PCB_ACTIONS::cleanupTracksAndVias );        // Trace Clean-up...
+        pcadUtils->Add( PCB_ACTIONS::removeUnusedPads );
+        pcadUtils->Add( PCB_ACTIONS::cleanupGraphics );
+        pcadUtils->Add( PCB_ACTIONS::repairBoard );
+        pcadUtils->AppendSeparator();
+        pcadUtils->Add( PCB_ACTIONS::zoneFillAll );
+        pcadUtils->Add( PCB_ACTIONS::zoneUnfillAll );
+        pcadUtils->AppendSeparator();
+        pcadUtils->Add( PCB_ACTIONS::boardStatistics );
+        pcadUtils->Add( PCB_ACTIONS::inspectClearance );
+        pcadUtils->Add( PCB_ACTIONS::inspectConstraints );
+        pcadUtils->Add( PCB_ACTIONS::showFootprintAssociations );
+        pcadUtils->Add( PCB_ACTIONS::diffFootprint );
+        pcadUtils->AppendSeparator();
+        pcadUtils->Add( PCB_ACTIONS::showEeschema );                // WiCAD Schematic...
+
+        if( !Kiface().IsSingle() )
+            pcadUtils->Add( ACTIONS::showProjectManager );
+
+        pcadUtils->Add( ACTIONS::showCalculatorTools );
+        pcadUtils->AppendSeparator();
+        // these two already belong to the stock Tools menu, so take copies
+        pcadUtils->Add( multichannelSubmenu->Clone() );
+        pcadUtils->Add( submenuActionPlugins->Clone() );
+
+        // the stock menus these replace
+        delete editMenu;
+        delete placeMenu;
+        delete routeMenu;
+        delete inspectMenu;
+        delete toolsMenu;
+        delete prefsMenu;
+
+        menuBar->Append( fileMenu,    _( "&File" ) );
+        menuBar->Append( pcadEdit,    _( "&Edit" ) );
+        menuBar->Append( viewMenu,    _( "&View" ) );
+        menuBar->Append( pcadPlace,   _( "&Place" ) );
+        menuBar->Append( pcadRoute,   _( "&Route" ) );
+        menuBar->Append( pcadOptions, _( "&Options" ) );
+        menuBar->Append( pcadLibrary, _( "&Library" ) );
+        menuBar->Append( pcadUtils,   _( "&Utils" ) );
+    }
+    else
+    {
     menuBar->Append( fileMenu,    _( "&File" ) );
     menuBar->Append( editMenu,    _( "&Edit" ) );
     menuBar->Append( viewMenu,    _( "&View" ) );
@@ -515,6 +733,7 @@ void PCB_EDIT_FRAME::doReCreateMenuBar()
     menuBar->Append( inspectMenu, _( "&Inspect" ) );
     menuBar->Append( toolsMenu,   _( "&Tools" ) );
     menuBar->Append( prefsMenu,   _( "P&references" ) );
+    }
     AddStandardHelpMenu( menuBar );
 
     SetMenuBar( menuBar );
