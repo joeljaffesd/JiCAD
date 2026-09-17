@@ -27,6 +27,7 @@
 #include <wx/translation.h>
 
 #include "builtin_color_themes.h"
+#include "pcad_color_theme.h"
 
 
 ///! Update the schema version whenever a migration is required
@@ -34,6 +35,7 @@ const int colorsSchemaVersion = 6;
 const wxString COLOR_SETTINGS::COLOR_BUILTIN_DEFAULT = "_builtin_default";
 const wxString COLOR_SETTINGS::COLOR_BUILTIN_CLASSIC = "_builtin_classic";
 const wxString COLOR_SETTINGS::COLOR_BUILTIN_EASYEDA_PRO = "_builtin_easyeda_pro";
+const wxString COLOR_SETTINGS::COLOR_BUILTIN_PCAD = "_builtin_pcad";
 
 
 COLOR_SETTINGS::COLOR_SETTINGS( const wxString& aFilename, bool aAbsolutePath ) :
@@ -504,12 +506,29 @@ std::vector<COLOR_SETTINGS*> COLOR_SETTINGS::CreateBuiltinColorSettings()
 
     for( const std::pair<int, COLOR4D> entry : s_easyedaProTheme )
         easyedaProTheme->m_colors[entry.first] = entry.second;
+    // WiCAD: the P-CAD theme is the classic theme with P-CAD's colours laid over it, so that every
+    // colour slot is defined
+    COLOR_SETTINGS* pcadTheme = new COLOR_SETTINGS( COLOR_BUILTIN_PCAD );
+    pcadTheme->SetName( _( "P-CAD" ) );
+    pcadTheme->m_writeFile = false;
+
+    for( PARAM_BASE* param : pcadTheme->m_params )
+        delete param;
+
+    pcadTheme->m_params.clear(); // Disable load/store
+
+    for( const std::pair<int, COLOR4D> entry : s_classicTheme )
+        pcadTheme->m_colors[entry.first] = entry.second;
+
+    for( const std::pair<int, COLOR4D> entry : s_pcadThemeOverrides )
+        pcadTheme->m_colors[entry.first] = entry.second;
 
     std::vector<COLOR_SETTINGS*> ret;
 
     ret.push_back( defaultTheme );
     ret.push_back( classicTheme );
     ret.push_back( easyedaProTheme );
+    ret.push_back( pcadTheme );
 
     return ret;
 }

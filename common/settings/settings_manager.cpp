@@ -470,7 +470,8 @@ void SETTINGS_MANAGER::loadAllColorSettings()
 
     for( const wxString& builtin : { COLOR_SETTINGS::COLOR_BUILTIN_DEFAULT,
                                      COLOR_SETTINGS::COLOR_BUILTIN_CLASSIC,
-                                     COLOR_SETTINGS::COLOR_BUILTIN_EASYEDA_PRO } )
+                                     COLOR_SETTINGS::COLOR_BUILTIN_EASYEDA_PRO,
+                                     COLOR_SETTINGS::COLOR_BUILTIN_PCAD } )
     {
         if( m_color_settings.count( builtin ) )
             builtinNames.insert( m_color_settings.at( builtin )->GetName() );
@@ -483,6 +484,7 @@ void SETTINGS_MANAGER::loadAllColorSettings()
         if( entry.first != COLOR_SETTINGS::COLOR_BUILTIN_DEFAULT
             && entry.first != COLOR_SETTINGS::COLOR_BUILTIN_CLASSIC
             && entry.first != COLOR_SETTINGS::COLOR_BUILTIN_EASYEDA_PRO
+            && entry.first != COLOR_SETTINGS::COLOR_BUILTIN_PCAD
             && builtinNames.count( settings->GetName() ) )
         {
             // Absolute-path themes store a full path as their filename, so reduce it to a basename.

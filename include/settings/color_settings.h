@@ -91,6 +91,7 @@ public:
     static const wxString COLOR_BUILTIN_DEFAULT;
     static const wxString COLOR_BUILTIN_CLASSIC;
     static const wxString COLOR_BUILTIN_EASYEDA_PRO;
+    static const wxString COLOR_BUILTIN_PCAD;      ///< WiCAD: colours of a P-CAD 2006 setup
 
 private:
     bool migrateSchema0to1();
