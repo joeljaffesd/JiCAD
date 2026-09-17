@@ -27,7 +27,10 @@
 #include <wx/log.h>
 
 #include <hotkeys_basic.h>
+#include <pcad_mode.h>
+#include "pcad_hotkeys.h"
 #include <algorithm>
+#include <set>
 #include <cctype>
 
 
@@ -343,14 +346,49 @@ void ACTION_MANAGER::UpdateHotKeys( bool aFullUpdate )
         mapsInitialized = true;
     }
 
+    if( aFullUpdate )
+    {
+        for( const auto& ii : m_actionNameIndex )
+            processHotKey( ii.second, legacyHotKeyMap, userHotKeyMap );
+    }
+
+    // WiCAD: a key claimed by the P-CAD map must not also trigger a stock KiCad action that happens to
+    // default to the same key (for example 'S', 'U' or 'G').  Clear those, unless the user bound them.
+    if( aFullUpdate && IsPCadMode() )
+    {
+        std::set<int> claimed;
+
+        for( const auto& ii : m_actionNameIndex )
+        {
+            if( s_pcadHotKeys.count( ii.first ) && !userHotKeyMap.count( ii.first ) )
+            {
+                claimed.insert( ii.second->GetHotKey() );
+                claimed.insert( ii.second->GetHotKeyAlt() );
+            }
+        }
+
+        claimed.erase( 0 );
+
+        for( const auto& ii : m_actionNameIndex )
+        {
+            TOOL_ACTION* action = ii.second;
+
+            if( s_pcadHotKeys.count( ii.first ) || userHotKeyMap.count( ii.first ) )
+                continue;
+
+            int primary = claimed.count( action->GetHotKey() ) ? 0 : action->GetHotKey();
+            int alt     = claimed.count( action->GetHotKeyAlt() ) ? 0 : action->GetHotKeyAlt();
+
+            if( primary != action->GetHotKey() || alt != action->GetHotKeyAlt() )
+                action->SetHotKey( primary ? primary : alt, primary ? alt : 0 );
+        }
+    }
+
     for( const auto& ii : m_actionNameIndex )
     {
         TOOL_ACTION* action = ii.second;
         int          hotkey = 0;
         int          alt    = 0;
-
-        if( aFullUpdate )
-            processHotKey( action, legacyHotKeyMap, userHotKeyMap );
 
         hotkey = action->GetHotKey();
         alt    = action->GetHotKeyAlt();
@@ -372,6 +410,13 @@ void ACTION_MANAGER::processHotKey( TOOL_ACTION*                                
 {
     int hotkey = aAction->m_defaultHotKey;
     int alternate = aAction->m_defaultHotKeyAlt;
+
+    // WiCAD: in P-CAD mode, P-CAD's key map provides the defaults.  A user binding still wins below.
+    if( IsPCadMode() && s_pcadHotKeys.count( aAction->m_name ) )
+    {
+        const std::pair<int, int>& keys = s_pcadHotKeys.at( aAction->m_name );
+        aAction->SetHotKey( keys.first, keys.second );
+    }
 
     if( !aAction->m_legacyName.empty() && aLegacyMap.count( aAction->m_legacyName ) )
         hotkey = aLegacyMap.at( aAction->m_legacyName );
