@@ -24,6 +24,29 @@
 #include <tool/actions.h>
 #include <tool/tools_holder.h>
 #include <tool/tool_manager.h>
+#include <pcad_mode.h>
+#include <pcad_vocabulary.h>
+#include <wx/stattext.h>
+#include <wx/window.h>
+
+
+// WiCAD: the P-CAD prompt line is a wxStaticText the editor frames create under this name
+static void updatePCadPromptLine( TOOLS_HOLDER* aHolder, const std::string& aActionName )
+{
+    if( !IsPCadMode() )
+        return;
+
+    wxWindow* frame = dynamic_cast<wxWindow*>( aHolder );
+
+    if( !frame )
+        return;
+
+    if( wxWindow* win = wxWindow::FindWindowByName( wxS( "PCadPromptLine" ), frame ) )
+    {
+        if( wxStaticText* prompt = dynamic_cast<wxStaticText*>( win ) )
+            prompt->SetLabel( PCadPrompt( aActionName ) );
+    }
+}
 
 
 TOOLS_HOLDER::TOOLS_HOLDER() :
@@ -73,6 +96,8 @@ void TOOLS_HOLDER::PushTool( const TOOL_EVENT& aEvent )
     {
         DisplayToolMsg( actionName );
     }
+
+    updatePCadPromptLine( this, actionName );
 }
 
 
@@ -117,6 +142,8 @@ void TOOLS_HOLDER::PopTool( const TOOL_EVENT& aEvent )
             {
                 DisplayToolMsg( ACTIONS::selectionTool.GetFriendlyName() );
             }
+
+            updatePCadPromptLine( this, CurrentToolName() );
 
             return;
         }

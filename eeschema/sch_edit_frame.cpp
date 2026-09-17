@@ -18,6 +18,11 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#include <pcad_mode.h>
+#include <pcad_vocabulary.h>
+#include <wx/panel.h>
+#include <wx/sizer.h>
+#include <wx/stattext.h>
 #include <algorithm>
 #include <api/api_handler_sch.h>
 #include <api/api_server.h>
@@ -250,6 +255,22 @@ SCH_EDIT_FRAME::SCH_EDIT_FRAME( KIWAY* aKiway, wxWindow* aParent ) :
 
     m_auimgr.AddPane( m_messagePanel, EDA_PANE().Messages().Name( wxS( "MsgPanel" ) )
                       .Bottom().Layer( 6 ) );
+
+    // WiCAD: P-CAD's prompt line, a one-line hint of what the active tool expects next
+    if( IsPCadMode() )
+    {
+        wxPanel*      promptPanel = new wxPanel( this );
+        wxBoxSizer*   promptSizer = new wxBoxSizer( wxHORIZONTAL );
+        wxStaticText* promptText = new wxStaticText( promptPanel, wxID_ANY, PCadPrompt( "" ),
+                                                     wxDefaultPosition, wxDefaultSize,
+                                                     wxST_NO_AUTORESIZE | wxST_ELLIPSIZE_END );
+        promptText->SetName( wxS( "PCadPromptLine" ) );
+        promptSizer->Add( promptText, 1, wxALIGN_CENTER_VERTICAL | wxLEFT | wxRIGHT, 6 );
+        promptPanel->SetSizer( promptSizer );
+
+        m_auimgr.AddPane( promptPanel, EDA_PANE().Messages().Name( wxS( "PCadPrompt" ) )
+                          .Bottom().Layer( 7 ).MinSize( -1, FromDIP( 22 ) ).BestSize( -1, FromDIP( 22 ) ) );
+    }
 
     // Columns; layers 1 - 3
     m_auimgr.AddPane( m_hierarchy, EDA_PANE().Palette().Name( SchematicHierarchyPaneName() )
