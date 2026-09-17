@@ -80,6 +80,12 @@ public:
         double     zoom_correction_factor;
     };
 
+    /// WiCAD: settings for the P-CAD look-and-feel mode
+    struct PCAD_MODE_SETTINGS
+    {
+        bool enabled;   ///< Editors look, feel and behave like P-CAD 2006
+    };
+
     struct AUTO_BACKUP
     {
         bool            enabled;            ///< Automatically back up the project when files are saved
@@ -280,6 +286,7 @@ public:
     PACKAGE_MANAGER     m_PackageManager;
     GIT                 m_Git;
     API                 m_Api;
+    PCAD_MODE_SETTINGS  m_PCadMode;
 
     /// Global field name templates shared by all project editors.
     TEMPLATES           m_FieldNameTemplates;

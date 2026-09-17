@@ -361,6 +361,7 @@ set( KICOMMON_SRCS
     xnode.cpp
 
     singleton.cpp
+    pcad_mode.cpp
     pgm_base.cpp
 
     io/kicad/kicad_io_utils.cpp    # needed by richio

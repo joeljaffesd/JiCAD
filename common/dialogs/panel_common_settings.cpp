@@ -115,6 +115,14 @@ PANEL_COMMON_SETTINGS::PANEL_COMMON_SETTINGS( wxWindow* aParent ) :
 
     m_scalingSizer->Add( m_zoomCorrectionCtrl, 1, wxEXPAND );
 
+    // WiCAD: P-CAD mode switch, added in code (not in the .fbp) at the top of the user interface options
+    m_pcadMode = new wxCheckBox( this, wxID_ANY, _( "P-CAD mode" ) );
+    m_pcadMode->SetToolTip( _( "Make the schematic and PCB editors look, feel and behave like P-CAD 2006. "
+                               "Files remain native KiCad.  Takes effect for newly opened editors." ) );
+
+    if( wxSizer* uiSizer = m_checkBoxIconsInMenus->GetContainingSizer() )
+        uiSizer->Insert( 0, m_pcadMode, 0, wxALL, 5 );
+
     // Hide the option of icons in menus for platforms that do not support them
     m_checkBoxIconsInMenus->Show( KIPLATFORM::UI::AllowIconsInMenus() );
 
@@ -212,6 +220,8 @@ bool PANEL_COMMON_SETTINGS::TransferDataFromWindow()
     commonSettings->m_Appearance.show_scrollbars = m_showScrollbars->GetValue();
 
     commonSettings->m_Appearance.grid_striping = m_gridStriping->GetValue();
+
+    commonSettings->m_PCadMode.enabled = m_pcadMode->GetValue();
 
     commonSettings->m_Appearance.use_custom_cursors = !m_disableCustomCursors->GetValue();
 
@@ -344,6 +354,8 @@ void PANEL_COMMON_SETTINGS::applySettingsToPanel( COMMON_SETTINGS& aSettings )
             aSettings.m_Backup.location == BACKUP_LOCATION::PROJECT_DIR ? 0 : 1 );
 
     m_showScrollbars->SetValue( aSettings.m_Appearance.show_scrollbars );
+
+    m_pcadMode->SetValue( aSettings.m_PCadMode.enabled );
 }
 
 

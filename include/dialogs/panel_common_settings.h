@@ -59,4 +59,5 @@ private:
     void setPdfViewerPathState();
 
     ZOOM_CORRECTION_CTRL* m_zoomCorrectionCtrl;
+    wxCheckBox*           m_pcadMode;     ///< WiCAD: P-CAD mode switch
 };

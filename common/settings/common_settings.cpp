@@ -127,6 +127,9 @@ COMMON_SETTINGS::COMMON_SETTINGS() :
     m_params.emplace_back( new PARAM<double>( "appearance.zoom_correction_factor",
             &m_Appearance.zoom_correction_factor, 1.0, 0.1, 10.0 ) );
 
+    // WiCAD: P-CAD mode is on by default and remembered between sessions
+    m_params.emplace_back( new PARAM<bool>( "pcad_mode.enabled", &m_PCadMode.enabled, true ) );
+
     m_params.emplace_back( new PARAM<bool>( "auto_backup.enabled", &m_Backup.enabled, true ) );
 
     m_params.emplace_back( new PARAM_ENUM<BACKUP_FORMAT>( "auto_backup.format", &m_Backup.format,
