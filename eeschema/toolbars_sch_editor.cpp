@@ -43,6 +43,7 @@
 #include <widgets/sch_properties_panel.h>
 #include <widgets/sch_search_pane.h>
 #include <toolbars_sch_editor.h>
+#include <pcad_mode.h>
 #include <wx/choice.h>
 #include <wx/stattext.h>
 
@@ -56,6 +57,95 @@ ACTION_TOOLBAR_CONTROL SCH_ACTION_TOOLBAR_CONTROLS::currentVariant( "control.cur
 std::optional<TOOLBAR_CONFIGURATION> SCH_EDIT_TOOLBAR_SETTINGS::DefaultToolbarConfig( TOOLBAR_LOC aToolbar )
 {
     TOOLBAR_CONFIGURATION config;
+
+    // WiCAD: P-CAD mode puts the placement tools on the left in P-CAD's order, a P-CAD style command
+    // toolbar on top, and KiCad's display options on the right.  Tools P-CAD does not have follow
+    // after a separator so nothing is lost.
+    if( IsPCadMode() )
+    {
+        // clang-format off
+        if( aToolbar == TOOLBAR_LOC::LEFT )
+        {
+            config.AppendAction( SCH_ACTIONS::placeSymbol )          // Place Part
+                  .AppendAction( SCH_ACTIONS::drawWire )             // Place Wire
+                  .AppendAction( SCH_ACTIONS::drawBus )              // Place Bus
+                  .AppendAction( SCH_ACTIONS::placeBusWireEntry )
+                  .AppendAction( SCH_ACTIONS::placePower )           // Place Port
+                  .AppendAction( SCH_ACTIONS::drawLines )            // Place Line
+                  .AppendAction( SCH_ACTIONS::drawArc )              // Place Arc
+                  .AppendAction( SCH_ACTIONS::drawPolygon )          // Place Polygon
+                  .AppendAction( SCH_ACTIONS::placeSchematicText );  // Place Text
+            config.AppendSeparator()
+                  .AppendAction( SCH_ACTIONS::placeJunction )
+                  .AppendAction( SCH_ACTIONS::placeNoConnect )
+                  .AppendGroup( TOOLBAR_GROUP_CONFIG( _( "Labels" ) )
+                                .AddAction( SCH_ACTIONS::placeLabel )
+                                .AddAction( SCH_ACTIONS::placeClassLabel )
+                                .AddAction( SCH_ACTIONS::placeGlobalLabel )
+                                .AddAction( SCH_ACTIONS::placeHierLabel ) )
+                  .AppendAction( SCH_ACTIONS::drawSheet )
+                  .AppendAction( SCH_ACTIONS::placeSheetPin )
+                  .AppendAction( SCH_ACTIONS::drawRuleArea );
+            config.AppendSeparator()
+                  .AppendAction( SCH_ACTIONS::drawRectangle )
+                  .AppendAction( SCH_ACTIONS::drawCircle )
+                  .AppendAction( SCH_ACTIONS::drawTextBox )
+                  .AppendAction( SCH_ACTIONS::drawTable )
+                  .AppendAction( SCH_ACTIONS::placeImage )
+                  .AppendAction( SCH_ACTIONS::highlightNetTool )
+                  .AppendAction( ACTIONS::deleteTool );
+            return config;
+        }
+
+        if( aToolbar == TOOLBAR_LOC::TOP_MAIN )
+        {
+            config.AppendAction( ACTIONS::selectionTool );            // Select
+            config.AppendSeparator();
+
+            if( Kiface().IsSingle() )
+            {
+                config.AppendAction( ACTIONS::doNew );
+                config.AppendAction( ACTIONS::open );
+            }
+
+            config.AppendAction( ACTIONS::save )
+                  .AppendAction( ACTIONS::print );
+            config.AppendSeparator()
+                  .AppendAction( ACTIONS::cut )
+                  .AppendAction( ACTIONS::copy )
+                  .AppendAction( ACTIONS::paste )
+                  .AppendAction( ACTIONS::undo )
+                  .AppendAction( ACTIONS::redo );
+            config.AppendSeparator()
+                  .AppendAction( ACTIONS::zoomTool )                  // Zoom Window
+                  .AppendAction( ACTIONS::zoomInCenter )
+                  .AppendAction( ACTIONS::zoomOutCenter )
+                  .AppendAction( ACTIONS::zoomFitObjects );           // View Extent
+            config.AppendSeparator()
+                  .AppendAction( SCH_ACTIONS::navigateBack )          // View Ascend / Descend
+                  .AppendAction( SCH_ACTIONS::navigateUp )
+                  .AppendAction( SCH_ACTIONS::navigateForward );
+            config.AppendSeparator()
+                  .AppendAction( SCH_ACTIONS::schematicSetup )
+                  .AppendAction( ACTIONS::plot )
+                  .AppendAction( ACTIONS::find );
+            config.AppendSeparator()
+                  .AppendAction( SCH_ACTIONS::annotate )              // Utils Renumber
+                  .AppendAction( SCH_ACTIONS::runERC )                // Utils ERC
+                  .AppendAction( SCH_ACTIONS::assignFootprints )
+                  .AppendAction( SCH_ACTIONS::generateBOM );
+            config.AppendSeparator()
+                  .AppendAction( ACTIONS::showSymbolEditor )
+                  .AppendAction( SCH_ACTIONS::showPcbNew );
+            config.AppendControl( SCH_ACTION_TOOLBAR_CONTROLS::currentVariant );
+            return config;
+        }
+        // clang-format on
+
+        // KiCad's display options toolbar moves to the right-hand side
+        if( aToolbar == TOOLBAR_LOC::RIGHT )
+            aToolbar = TOOLBAR_LOC::LEFT;
+    }
 
     // clang-format off
     switch( aToolbar )

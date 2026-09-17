@@ -70,6 +70,7 @@
 #include <tools/pcb_control.h>
 #include <pcb_draw_panel_gal.h>
 #include <drawing_sheet/ds_proxy_view_item.h>
+#include <pcad_mode.h>
 
 /* Data to build the layer pair indicator button */
 static wxBitmapBundle LayerPairBitmap;
@@ -137,6 +138,103 @@ ACTION_TOOLBAR_CONTROL PCB_ACTION_TOOLBAR_CONTROLS::currentVariant( "control.PCB
 std::optional<TOOLBAR_CONFIGURATION> PCB_EDIT_TOOLBAR_SETTINGS::DefaultToolbarConfig( TOOLBAR_LOC aToolbar )
 {
     TOOLBAR_CONFIGURATION config;
+
+    // WiCAD: P-CAD mode puts the placement tools on the left in P-CAD's order, a P-CAD style command
+    // toolbar on top, and KiCad's display options on the right.  Tools P-CAD does not have follow
+    // after a separator so nothing is lost.
+    if( IsPCadMode() )
+    {
+        // clang-format off
+        if( aToolbar == TOOLBAR_LOC::LEFT )
+        {
+            config.AppendAction( PCB_ACTIONS::placeFootprint )      // Place Component
+                  .AppendAction( PCB_ACTIONS::localRatsnestTool )   // Place Connection
+                  .AppendAction( PCB_ACTIONS::drawVia )             // Place Via
+                  .AppendAction( PCB_ACTIONS::drawLine )            // Place Line
+                  .AppendAction( PCB_ACTIONS::drawArc )             // Place Arc
+                  .AppendAction( PCB_ACTIONS::drawPolygon )         // Place Polygon
+                  .AppendAction( PCB_ACTIONS::placePoint )          // Place Point
+                  .AppendAction( PCB_ACTIONS::drawZone )            // Place Copper Pour
+                  .AppendAction( PCB_ACTIONS::drawZoneCutout )      // Place Cutout
+                  .AppendAction( PCB_ACTIONS::drawRuleArea )        // Place Keepout
+                  .AppendAction( PCB_ACTIONS::placeText )           // Place Text
+                  .AppendGroup( TOOLBAR_GROUP_CONFIG( _( "Dimension objects" ) )   // Place Dimension
+                                .AddAction( PCB_ACTIONS::drawOrthogonalDimension )
+                                .AddAction( PCB_ACTIONS::drawAlignedDimension )
+                                .AddAction( PCB_ACTIONS::drawCenterDimension )
+                                .AddAction( PCB_ACTIONS::drawRadialDimension )
+                                .AddAction( PCB_ACTIONS::drawLeader ) );
+            config.AppendSeparator()                                 // Route toolbar
+                  .AppendAction( PCB_ACTIONS::routeSingleTrack )     // Route Manual
+                  .AppendAction( PCB_ACTIONS::routeDiffPair );       // Route Differential Pair
+            config.AppendSeparator()
+                  .AppendAction( PCB_ACTIONS::drawRectangle )
+                  .AppendAction( PCB_ACTIONS::drawCircle )
+                  .AppendAction( PCB_ACTIONS::drawTextBox )
+                  .AppendAction( PCB_ACTIONS::drawTable )
+                  .AppendAction( PCB_ACTIONS::placeReferenceImage )
+                  .AppendGroup( TOOLBAR_GROUP_CONFIG( _( "Track tuning tools" ) )
+                                .AddAction( PCB_ACTIONS::tuneSingleTrack )
+                                .AddAction( PCB_ACTIONS::tuneDiffPair )
+                                .AddAction( PCB_ACTIONS::tuneSkew ) )
+                  .AppendGroup( TOOLBAR_GROUP_CONFIG( _( "PCB origins and points" ) )
+                                .AddAction( ACTIONS::gridSetOrigin )
+                                .AddAction( PCB_ACTIONS::drillOrigin ) )
+                  .AppendAction( ACTIONS::deleteTool );
+            return config;
+        }
+
+        if( aToolbar == TOOLBAR_LOC::TOP_MAIN )
+        {
+            config.AppendAction( ACTIONS::selectionTool );           // Select
+            config.AppendSeparator();
+
+            if( Kiface().IsSingle() )
+            {
+                config.AppendAction( ACTIONS::doNew );
+                config.AppendAction( ACTIONS::open );
+            }
+
+            config.AppendAction( ACTIONS::save )
+                  .AppendAction( ACTIONS::print );
+            config.AppendSeparator()
+                  .AppendAction( ACTIONS::cut )
+                  .AppendAction( ACTIONS::copy )
+                  .AppendAction( ACTIONS::paste )
+                  .AppendAction( ACTIONS::undo )
+                  .AppendAction( ACTIONS::redo );
+            config.AppendSeparator()
+                  .AppendAction( ACTIONS::measureTool )
+                  .AppendAction( ACTIONS::zoomTool )                 // Zoom Window
+                  .AppendAction( ACTIONS::zoomInCenter )
+                  .AppendAction( ACTIONS::zoomOutCenter )
+                  .AppendAction( ACTIONS::zoomFitObjects )           // View Extent
+                  .AppendAction( PCB_ACTIONS::runDRC );
+            config.AppendSeparator()
+                  .AppendAction( PCB_ACTIONS::boardSetup )
+                  .AppendAction( ACTIONS::plot )
+                  .AppendAction( ACTIONS::find );
+            config.AppendSeparator()
+                  .AppendAction( ACTIONS::showFootprintEditor )
+                  .AppendAction( ACTIONS::show3DViewer );
+            config.AppendSeparator();
+
+            if( !Kiface().IsSingle() )
+                config.AppendAction( ACTIONS::updatePcbFromSchematic );
+            else
+                config.AppendAction( PCB_ACTIONS::importNetlist );
+
+            config.AppendAction( PCB_ACTIONS::showEeschema );
+            config.AppendControl( PCB_ACTION_TOOLBAR_CONTROLS::currentVariant );
+            config.AppendControl( ACTION_TOOLBAR_CONTROLS::ipcScripting );
+            return config;
+        }
+        // clang-format on
+
+        // KiCad's display options toolbar moves to the right-hand side
+        if( aToolbar == TOOLBAR_LOC::RIGHT )
+            aToolbar = TOOLBAR_LOC::LEFT;
+    }
 
     // clang-format off
     switch( aToolbar )
