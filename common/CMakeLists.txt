@@ -362,6 +362,7 @@ set( KICOMMON_SRCS
 
     singleton.cpp
     pcad_mode.cpp
+    pcad_vocabulary.cpp
     pgm_base.cpp
 
     io/kicad/kicad_io_utils.cpp    # needed by richio

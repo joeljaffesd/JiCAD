@@ -19,6 +19,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#include <pcad_mode.h>
+#include <pcad_vocabulary.h>
 #include <optional>
 #include <tool/tool_action.h>
 #include <tool/tool_event.h>
@@ -157,6 +159,10 @@ wxString TOOL_ACTION::GetFriendlyName() const
     if( m_friendlyName.empty() )
         return wxEmptyString;
 
+    // WiCAD: P-CAD wording for labels in P-CAD mode
+    if( IsPCadMode() )
+        return PCadLabel( m_name, wxGetTranslation( m_friendlyName ), true );
+
     return wxGetTranslation( m_friendlyName );
 }
 
@@ -164,7 +170,12 @@ wxString TOOL_ACTION::GetFriendlyName() const
 wxString TOOL_ACTION::GetMenuLabel() const
 {
     if( m_menuLabel.has_value() )
+    {
+        if( IsPCadMode() )
+            return PCadLabel( m_name, wxGetTranslation( m_menuLabel.value() ), true );
+
         return wxGetTranslation( m_menuLabel.value() );
+    }
 
     return GetFriendlyName();
 }
@@ -191,6 +202,9 @@ wxString TOOL_ACTION::GetDescription() const
 wxString TOOL_ACTION::GetTooltip( bool aIncludeHotkey ) const
 {
     wxString tooltip = wxGetTranslation( m_tooltip );
+
+    if( IsPCadMode() )
+        tooltip = PCadLabel( m_name, tooltip, false );
 
     if( aIncludeHotkey && GetHotKey() )
         tooltip += wxString::Format( wxT( "  (%s)" ), KeyNameFromKeyCode( GetHotKey() ) );
