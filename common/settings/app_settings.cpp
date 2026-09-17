@@ -18,6 +18,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#include <pcad_mode.h>
 #include <advanced_config.h>
 #include <class_draw_panel_gal.h>
 #include <common.h>
@@ -239,7 +240,9 @@ APP_SETTINGS_BASE::APP_SETTINGS_BASE( const std::string& aFilename, int aSchemaV
     m_params.emplace_back( new PARAM_LIST<wxString>( "system.file_history",
             &m_System.file_history, {} ) );
 
-    if( m_filename == wxS( "pl_editor" )
+    // WiCAD: P-CAD works in mils everywhere, so P-CAD mode defaults every editor to mils
+    if( IsPCadMode()
+        || m_filename == wxS( "pl_editor" )
         || m_filename == wxS( "eeschema" )
         || m_filename == wxS( "symbol_editor" ) )
     {
@@ -294,8 +297,10 @@ APP_SETTINGS_BASE::APP_SETTINGS_BASE( const std::string& aFilename, int aSchemaV
             },
             nlohmann::json::array() ) );
 
+    // WiCAD: editors start with the P-CAD colour theme when P-CAD mode is on
     m_params.emplace_back( new PARAM<wxString>( "appearance.color_theme",
-            &m_ColorTheme, COLOR_SETTINGS::COLOR_BUILTIN_EASYEDA_PRO ) );
+            &m_ColorTheme, IsPCadMode() ? COLOR_SETTINGS::COLOR_BUILTIN_PCAD
+                                        : COLOR_SETTINGS::COLOR_BUILTIN_EASYEDA_PRO ) );
 
     m_params.emplace_back( new PARAM<bool>( "appearance.custom_toolbars",
             &m_CustomToolbars, false ) );
@@ -581,7 +586,10 @@ void APP_SETTINGS_BASE::addParamsForWindow( WINDOW_SETTINGS* aWindow, const std:
             &aWindow->cursor.always_show_cursor, true ) );
 
     m_params.emplace_back( new PARAM<KIGFX::CROSS_HAIR_MODE>( aJsonPath + ".cursor.cross_hair_mode",
-            &aWindow->cursor.cross_hair_mode, KIGFX::CROSS_HAIR_MODE::SMALL_CROSS ) );
+            &aWindow->cursor.cross_hair_mode,
+            // WiCAD: P-CAD's "Large Cross" cursor
+            IsPCadMode() ? KIGFX::CROSS_HAIR_MODE::FULLSCREEN_CROSS
+                         : KIGFX::CROSS_HAIR_MODE::SMALL_CROSS ) );
 }
 
 
