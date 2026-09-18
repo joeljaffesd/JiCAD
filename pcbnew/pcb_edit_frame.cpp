@@ -2619,7 +2619,7 @@ bool PCB_EDIT_FRAME::FetchNetlistFromSchematic( NETLIST& aNetlist, const wxStrin
     {
         DisplayErrorMessage( this, _( "Cannot update the PCB because PCB editor is opened in stand-alone mode. "
                                       "In order to create or update PCBs from schematics, you must launch the "
-                                      "KiCad project manager and create a project." ) );
+                                      "WiCAD project manager and create a project." ) );
         return false;       // Not in standalone mode
     }
 

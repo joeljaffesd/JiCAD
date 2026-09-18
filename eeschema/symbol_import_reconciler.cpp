@@ -418,7 +418,7 @@ void SYMBOL_IMPORT_RECONCILER::writeAndRegisterCache(
 
     if( !pi )
     {
-        m_reporter.Report( _( "Cannot reconcile imported symbols: no KiCad symbol writer." ),
+        m_reporter.Report( _( "Cannot reconcile imported symbols: no WiCAD symbol writer." ),
                            RPT_SEVERITY_ERROR );
         return;
     }

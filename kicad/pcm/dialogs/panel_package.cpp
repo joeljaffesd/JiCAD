@@ -88,7 +88,7 @@ PANEL_PACKAGE::PANEL_PACKAGE( wxWindow* parent, const ActionCallback& aCallback,
 
     m_warningIcon->SetBitmap( KiBitmapBundle( BITMAPS::small_warning ) );
     m_warningIcon->SetToolTip( _( "Warning: This plugin only supports the legacy Python API "
-                                  "and will not run in this KiCad version." ) );
+                                  "and will not run in this WiCAD version." ) );
     m_warningIcon->Show( m_data.swig_warning );
 
     SetState( m_data.state, m_data.pinned );

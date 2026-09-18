@@ -1009,10 +1009,10 @@ bool WarnUserIfOperatingSystemUnsupported()
 
     KICAD_MESSAGE_DIALOG dialog( nullptr,
                                  _( "This operating system is not supported "
-                                    "by KiCad and its dependencies." ),
+                                    "by WiCAD and its dependencies." ),
                                  _( "Unsupported Operating System" ), wxOK | wxICON_EXCLAMATION );
 
-    dialog.SetExtendedMessage( _( "Any issues with KiCad on this system cannot "
+    dialog.SetExtendedMessage( _( "Any issues with WiCAD on this system cannot "
                                   "be reported to the official bugtracker." ) );
     dialog.ShowModal();
 

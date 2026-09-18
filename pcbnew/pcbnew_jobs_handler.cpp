@@ -364,7 +364,7 @@ PCBNEW_JOBS_HANDLER::PCBNEW_JOBS_HANDLER( KIWAY* aKiway ) :
             "hpgl",
             [&]( JOB* aJob )
             {
-                m_reporter->Report( _( "Plotting to HPGL is no longer supported as of KiCad 10.0.\n" ),
+                m_reporter->Report( _( "Plotting to HPGL is no longer supported as of WiCAD 10.0.\n" ),
                                     RPT_SEVERITY_ERROR );
                 return CLI::EXIT_CODES::ERR_ARGS;
             },
@@ -374,7 +374,7 @@ PCBNEW_JOBS_HANDLER::PCBNEW_JOBS_HANDLER( KIWAY* aKiway ) :
 
                 wxCHECK( editFrame, false );
 
-                DisplayErrorMessage( editFrame, _( "Plotting to HPGL is no longer supported as of KiCad 10.0." ) );
+                DisplayErrorMessage( editFrame, _( "Plotting to HPGL is no longer supported as of WiCAD 10.0." ) );
                 return false;
             } );
     Register( "drill", std::bind( &PCBNEW_JOBS_HANDLER::JobExportDrill, this, std::placeholders::_1 ),
@@ -3544,7 +3544,7 @@ int PCBNEW_JOBS_HANDLER::JobImport( JOB* aJob )
                                     {
                                         warnings.push_back( wxString::Format(
                                                 _( "Layer map entry '%s' -> '%s' names an unknown "
-                                                   "KiCad layer; using automatic mapping instead" ),
+                                                   "WiCAD layer; using automatic mapping instead" ),
                                                 desc.Name, it->second ) );
                                     }
                                     else if( !desc.PermittedLayers.Contains( resolved ) )
@@ -3565,7 +3565,7 @@ int PCBNEW_JOBS_HANDLER::JobImport( JOB* aJob )
                                 if( desc.Required && target == UNDEFINED_LAYER )
                                 {
                                     warnings.push_back( wxString::Format(
-                                            _( "No KiCad layer mapping for required source layer "
+                                            _( "No WiCAD layer mapping for required source layer "
                                                "'%s'; its items will not be imported" ),
                                             desc.Name ) );
                                 }
@@ -3935,7 +3935,7 @@ int PCBNEW_JOBS_HANDLER::runPcbMerge( const wxString& aAncestor, const wxString&
     {
         if( !Pgm().IsGUI() )
         {
-            m_reporter->Report( _( "--interactive requires a GUI KiCad process; the console "
+            m_reporter->Report( _( "--interactive requires a GUI WiCAD process; the console "
                                    "kicad-cli cannot open dialogs.\n" ),
                                 RPT_SEVERITY_ERROR );
             return CLI::EXIT_CODES::ERR_ARGS;

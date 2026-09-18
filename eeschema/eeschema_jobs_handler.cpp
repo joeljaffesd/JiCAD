@@ -146,7 +146,7 @@ EESCHEMA_JOBS_HANDLER::EESCHEMA_JOBS_HANDLER( KIWAY* aKiway ) :
                   if( plotJob->m_plotFormat == SCH_PLOT_FORMAT::HPGL )
                   {
                       DisplayErrorMessage( editFrame,
-                                           _( "Plotting to HPGL is no longer supported as of KiCad 10.0." ) );
+                                           _( "Plotting to HPGL is no longer supported as of WiCAD 10.0." ) );
                       return false;
                   }
 
@@ -315,7 +315,7 @@ int EESCHEMA_JOBS_HANDLER::JobExportPlot( JOB* aJob )
 
     if( aPlotJob->m_plotFormat == SCH_PLOT_FORMAT::HPGL )
     {
-        m_reporter->Report( _( "Plotting to HPGL is no longer supported as of KiCad 10.0.\n" ), RPT_SEVERITY_ERROR );
+        m_reporter->Report( _( "Plotting to HPGL is no longer supported as of WiCAD 10.0.\n" ), RPT_SEVERITY_ERROR );
         return CLI::EXIT_CODES::ERR_ARGS;
     }
 
@@ -2230,7 +2230,7 @@ int EESCHEMA_JOBS_HANDLER::runSchMerge( const wxString& aAncestor, const wxStrin
     {
         if( !Pgm().IsGUI() )
         {
-            m_reporter->Report( _( "--interactive requires a GUI KiCad process; the console "
+            m_reporter->Report( _( "--interactive requires a GUI WiCAD process; the console "
                                    "kicad-cli cannot open dialogs.\n" ),
                                 RPT_SEVERITY_ERROR );
             return CLI::EXIT_CODES::ERR_ARGS;

@@ -59,7 +59,7 @@ CLI::PCB_IMPORT_COMMAND::PCB_IMPORT_COMMAND() : COMMAND( "import" )
 
     m_argParser.add_argument( ARG_LAYER_MAP )
             .default_value( std::string( "" ) )
-            .help( UTF8STDSTR( _( "JSON file mapping source layer names to KiCad layer names; "
+            .help( UTF8STDSTR( _( "JSON file mapping source layer names to WiCAD layer names; "
                                   "unmapped layers use the automatic best-guess" ) ) )
             .metavar( "FILE" );
 }

@@ -53,7 +53,7 @@ void apiServerSignalHandler( int )
 CLI::API_SERVER_COMMAND::API_SERVER_COMMAND() :
         COMMAND( "api-server" )
 {
-    m_argParser.add_description( UTF8STDSTR( _( "Run the KiCad IPC API server in headless mode" ) ) );
+    m_argParser.add_description( UTF8STDSTR( _( "Run the WiCAD IPC API server in headless mode" ) ) );
 
     m_argParser.add_argument( ARG_PATH )
             .default_value( std::string() )

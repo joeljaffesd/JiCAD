@@ -1068,13 +1068,13 @@ static void buildKicadAboutBanner( EDA_BASE_FRAME* aParent, ABOUT_APP_INFO& aInf
                 << wxT( "</u></b>" ); // bold & underlined font for caption
 
     description << wxT( "<p>" )
-                << _( "WiCAD is a fork of KiCad with a P-CAD mode: its schematic and PCB editors can look, "
+                << _( "WiCAD is a fork of WiCAD with a P-CAD mode: its schematic and PCB editors can look, "
                       "feel and behave like P-CAD 2006, while every file stays native KiCad. WiCAD is not "
-                      "affiliated with or endorsed by the KiCad project." )
+                      "affiliated with or endorsed by the WiCAD project." )
                 << wxT( "</p>" );
 
     description << wxT( "<p>" )
-                << _( "The KiCad EDA Suite is a set of open source applications for the "
+                << _( "The WiCAD EDA Suite is a set of open source applications for the "
                       "creation of electronic schematics and printed circuit boards." )
                 << wxT( "</p>" );
 
@@ -1082,13 +1082,13 @@ static void buildKicadAboutBanner( EDA_BASE_FRAME* aParent, ABOUT_APP_INFO& aInf
 
     /* websites */
     description << wxT( "<p><b><u>" )
-                << _( "KiCad on the web" )
+                << _( "WiCAD on the web" )
                 << wxT( "</u></b>" ); // bold & underlined font for caption
 
     // bullet-ed list with some http links
     description << wxT( "<ul>" );
     description << wxT( "<li>" )
-                << _( "The official KiCad website - " )
+                << _( "The official WiCAD website - " )
                 << HtmlHyperlink( wxS( "http://www.kicad.org" ) )
                 << wxT( "</li>" );
     description << wxT( "<li>" )
@@ -1116,12 +1116,12 @@ static void buildKicadAboutBanner( EDA_BASE_FRAME* aParent, ABOUT_APP_INFO& aInf
     description << wxT( "</ul></p>" );
 
     description << wxT( "<p><b><u>" )
-                << _( "KiCad users group and community" )
+                << _( "WiCAD users group and community" )
                 << wxT( "</u></b>" ); // bold & underlined font caption
 
     description << wxT( "<ul>" );
     description << wxT( "<li>" )
-                << _( "KiCad forum - " )
+                << _( "WiCAD forum - " )
                 << HtmlHyperlink( wxS( "https://go.kicad.org/forum" ) )
                 << wxT( "</li>" );
 
@@ -1135,7 +1135,7 @@ static void buildKicadAboutBanner( EDA_BASE_FRAME* aParent, ABOUT_APP_INFO& aInf
     license
         << wxT( "<div align='center'>" )
         << HtmlNewline( 4 )
-        << _( "The complete KiCad EDA Suite is released under the" ) << HtmlNewline( 2 )
+        << _( "The complete WiCAD EDA Suite is released under the" ) << HtmlNewline( 2 )
         << HtmlHyperlink( wxS( "http://www.gnu.org/licenses" ),
                           _( "GNU General Public License (GPL) version 3 or any later version" ) )
         << wxT( "</div>" );

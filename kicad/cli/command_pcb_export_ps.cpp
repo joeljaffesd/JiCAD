@@ -109,7 +109,7 @@ CLI::PCB_EXPORT_PS_COMMAND::PCB_EXPORT_PS_COMMAND() :
             .flag();
 
     m_argParser.add_argument( ARG_MODE_MULTI )
-            .help( UTF8STDSTR( _( "Generates one or more files with behavior similar to the KiCad "
+            .help( UTF8STDSTR( _( "Generates one or more files with behavior similar to the WiCAD "
                                   "GUI plotting. The given output path specifies a directory in "
                                   "which files may be output." ) ) )
             .flag();

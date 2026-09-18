@@ -84,7 +84,7 @@ bool LoadLayerMapFile( const wxString& aFile, std::map<wxString, wxString>& aMap
     if( !json.is_object() )
     {
         aError = wxString::Format( _( "Layer map file '%s' must be a JSON object mapping source "
-                                      "layer names to KiCad layer names" ), aFile );
+                                      "layer names to WiCAD layer names" ), aFile );
         return false;
     }
 
@@ -94,7 +94,7 @@ bool LoadLayerMapFile( const wxString& aFile, std::map<wxString, wxString>& aMap
     {
         if( !it.value().is_string() )
         {
-            aError = wxString::Format( _( "Layer map entry for '%s' must be a KiCad layer name "
+            aError = wxString::Format( _( "Layer map entry for '%s' must be a WiCAD layer name "
                                           "string" ), From_UTF8( it.key().c_str() ) );
             return false;
         }

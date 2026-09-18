@@ -470,7 +470,7 @@ bool SCH_EDIT_FRAME::OpenProjectFiles( const std::vector<wxString>& aFileSet, in
             DisplayInfoMessage( this, _( "An error was found when loading the schematic that has been "
                                          "automatically fixed.  Please save the schematic to repair the "
                                          "broken file or it may not be usable with other versions of "
-                                         "KiCad." ) );
+                                         "WiCAD." ) );
         }
 
         UpdateFileHistory( fullFileName );
@@ -627,7 +627,7 @@ bool SCH_EDIT_FRAME::OpenProjectFiles( const std::vector<wxString>& aFileSet, in
 
             m_infoBar->RemoveAllButtons();
             m_infoBar->AddCloseButton();
-            m_infoBar->ShowMessage( _( "This file was created by an older version of KiCad. "
+            m_infoBar->ShowMessage( _( "This file was created by an older version of WiCAD. "
                                        "It will be converted to the new format when saved." ),
                                     wxICON_WARNING, WX_INFOBAR::MESSAGE_TYPE::OUTDATED_SAVE );
 
@@ -653,7 +653,7 @@ bool SCH_EDIT_FRAME::OpenProjectFiles( const std::vector<wxString>& aFileSet, in
             {
                 m_infoBar->RemoveAllButtons();
                 m_infoBar->AddCloseButton();
-                m_infoBar->ShowMessage( _( "This file was created by an older version of KiCad. "
+                m_infoBar->ShowMessage( _( "This file was created by an older version of WiCAD. "
                                            "It will be converted to the new format when saved." ),
                                         wxICON_WARNING, WX_INFOBAR::MESSAGE_TYPE::OUTDATED_SAVE );
             }

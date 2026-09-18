@@ -216,7 +216,7 @@ void PADS_PCB_CONVERTER::SetupLayers( const std::vector<PADS_IO::LAYER_INFO>& aP
     {
         // mapInnerCopperLayer collapses everything past the cap onto the last inner layer rather
         // than discarding it, so say that rather than claiming the layers were dropped
-        m_reporter->Report( wxString::Format( _( "The PADS file declares %d copper layers; KiCad supports "
+        m_reporter->Report( wxString::Format( _( "The PADS file declares %d copper layers; WiCAD supports "
                                                  "%d, so the layers past that share the last inner layer." ),
                                               aPadsLayerCount, MAX_CU_LAYERS ),
                             RPT_SEVERITY_WARNING );

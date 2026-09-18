@@ -326,7 +326,7 @@ int COMMON_CONTROL::ShowHelp( const TOOL_EVENT& aEvent )
         if( !helpFile )
         {
             msg = wxString::Format( _( "Help file '%s' or\n'%s' could not be found.\n"
-                                       "Do you want to access the KiCad online help?" ),
+                                       "Do you want to access the WiCAD online help?" ),
                                     names[0], names[1] );
             KICAD_MESSAGE_DIALOG dlg( nullptr, msg, _( "File Not Found" ),
                                       wxYES_NO | wxNO_DEFAULT | wxCANCEL );
@@ -346,7 +346,7 @@ int COMMON_CONTROL::ShowHelp( const TOOL_EVENT& aEvent )
         if( !helpFile )
         {
             msg = wxString::Format( _( "Help file '%s' could not be found.\n"
-                                       "Do you want to access the KiCad online help?" ),
+                                       "Do you want to access the WiCAD online help?" ),
                                     base_name );
             KICAD_MESSAGE_DIALOG dlg( nullptr, msg, _( "File Not Found" ),
                                       wxYES_NO | wxNO_DEFAULT | wxCANCEL );
@@ -386,7 +386,7 @@ int COMMON_CONTROL::GetInvolved( const TOOL_EVENT& aEvent )
         msg.Printf( _( "Could not launch the default browser.\n"
                        "For information on how to help the KiCad project, visit %s" ),
                     URL_GET_INVOLVED );
-        wxMessageBox( msg, _( "Get involved with KiCad" ), wxOK, m_frame );
+        wxMessageBox( msg, _( "Get involved with WiCAD" ), wxOK, m_frame );
     }
 
     return 0;
@@ -401,7 +401,7 @@ int COMMON_CONTROL::Donate( const TOOL_EVENT& aEvent )
         msg.Printf( _( "Could not launch the default browser.\n"
                        "To donate to the KiCad project, visit %s" ),
                     URL_DONATE );
-        wxMessageBox( msg, _( "Donate to KiCad" ), wxOK, m_frame );
+        wxMessageBox( msg, _( "Donate to WiCAD" ), wxOK, m_frame );
     }
 
     return 0;

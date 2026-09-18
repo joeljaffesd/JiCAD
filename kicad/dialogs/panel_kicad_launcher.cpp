@@ -181,7 +181,7 @@ void PANEL_KICAD_LAUNCHER::CreateLaunchers()
                  _( "Edit drawing sheet borders and title blocks for use in schematics and PCB designs" ) );
 
     BITMAP_BUTTON* bb = addLauncher( KICAD_MANAGER_ACTIONS::showPluginManager, BITMAPS::icon_pcm,
-                                     _( "Manage downloadable packages from KiCad and 3rd party repositories" ),
+                                     _( "Manage downloadable packages from WiCAD and 3rd party repositories" ),
                                      KIPLATFORM::POLICY::GetPolicyBool( POLICY_KEY_PCM )
                                             != KIPLATFORM::POLICY::PBOOL::DISABLED );
 

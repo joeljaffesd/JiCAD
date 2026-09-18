@@ -74,7 +74,7 @@ void CADSTAR_PCB_ARCHIVE_LOADER::Load( BOARD* aBoard, PROJECT* aProject )
     {
         // Note that we allow the floating point output here because this message is displayed to the user and should
         // be in their locale.
-        THROW_IO_ERRORF( _( "The design is too large and cannot be imported into KiCad. \n"
+        THROW_IO_ERRORF( _( "The design is too large and cannot be imported into WiCAD. \n"
                             "Please reduce the maximum design size in CADSTAR by navigating to: \n"
                             "Design Tab -> Properties -> Design Options -> Maximum Design Size. \n"
                             "Current Design size: %.2f, %.2f millimeters. \n"                //format:allow
@@ -142,24 +142,24 @@ void CADSTAR_PCB_ARCHIVE_LOADER::Load( BOARD* aBoard, PROJECT* aProject )
 
     if( Layout.Trunks.size() > 0 )
     {
-        reportWarning( _( "The CADSTAR design contains Trunk routing elements, which have no KiCad "
+        reportWarning( _( "The CADSTAR design contains Trunk routing elements, which have no WiCAD "
                           "equivalent. These elements were not loaded." ) );
     }
 
     if( Layout.VariantHierarchy.Variants.size() > 0 )
     {
-        reportWarning( wxString::Format( _( "The CADSTAR design contains variants which has no KiCad equivalent. "
+        reportWarning( wxString::Format( _( "The CADSTAR design contains variants which has no WiCAD equivalent. "
                                             "Only the variant '%s' was loaded." ),
                                          Layout.VariantHierarchy.Variants.begin()->second.Name ) );
     }
 
     if( Layout.ReuseBlocks.size() > 0 )
     {
-        reportWarning( _( "The CADSTAR design contains re-use blocks which has no KiCad equivalent. The "
+        reportWarning( _( "The CADSTAR design contains re-use blocks which has no WiCAD equivalent. The "
                           "re-use block information has been discarded during the import." ) );
     }
 
-    reportWarning( _( "CADSTAR fonts are different to the ones in KiCad. This will likely result "
+    reportWarning( _( "CADSTAR fonts are different to the ones in WiCAD. This will likely result "
                       "in alignment issues that may cause DRC errors. Please review the imported "
                       "text elements carefully and correct manually if required." ) );
 
@@ -231,8 +231,8 @@ void CADSTAR_PCB_ARCHIVE_LOADER::logBoardStackupWarning( const wxString& aCadsta
 {
     if( m_logLayerWarnings )
     {
-        reportWarning( wxString::Format( _( "The CADSTAR layer '%s' has no KiCad equivalent. All elements on this "
-                                            "layer have been mapped to KiCad layer '%s' instead." ),
+        reportWarning( wxString::Format( _( "The CADSTAR layer '%s' has no WiCAD equivalent. All elements on this "
+                                            "layer have been mapped to WiCAD layer '%s' instead." ),
                                          aCadstarLayerName,
                                          LSET::Name( aKiCadLayer ) ) );
     }
@@ -245,7 +245,7 @@ void CADSTAR_PCB_ARCHIVE_LOADER::logBoardStackupMessage( const wxString& aCadsta
     if( m_logLayerWarnings )
     {
         reportInfo( wxString::Format( _( "The CADSTAR layer '%s' has been assumed to be a technical layer. All "
-                                         "elements on this layer have been mapped to KiCad layer '%s'." ),
+                                         "elements on this layer have been mapped to WiCAD layer '%s'." ),
                                       aCadstarLayerName,
                                       LSET::Name( aKiCadLayer ) ) );
     }
@@ -762,7 +762,7 @@ void CADSTAR_PCB_ARCHIVE_LOADER::loadDesignRules()
 
     applyNetClassRule( "T_T", bds.m_NetSettings->GetDefaultNetclass() );
 
-    reportWarning( _( "KiCad design rules are different from CADSTAR ones. Only the compatible "
+    reportWarning( _( "WiCAD design rules are different from CADSTAR ones. Only the compatible "
                       "design rules were imported. It is recommended that you review the design "
                       "rules that have been applied." ) );
 }
@@ -965,7 +965,7 @@ void CADSTAR_PCB_ARCHIVE_LOADER::loadLibraryAreas( const SYMDEF_PCB& aComponent,
                 libName << wxT( " (" ) << aComponent.Alternate << wxT( ")" );
 
             reportError( wxString::Format( _( "The CADSTAR area '%s' in library component '%s' does not "
-                                              "have a KiCad equivalent. The area is neither a via nor "
+                                              "have a WiCAD equivalent. The area is neither a via nor "
                                               "route keepout area. The area was not imported." ),
                                            area.ID,
                                            libName ) );
@@ -1463,7 +1463,7 @@ void CADSTAR_PCB_ARCHIVE_LOADER::loadDimensions()
             switch( csDim.Subtype )
             {
             case DIMENSION::SUBTYPE::ANGLED:
-                reportWarning( wxString::Format( _( "Dimension ID %s is an angled dimension, which has no KiCad "
+                reportWarning( wxString::Format( _( "Dimension ID %s is an angled dimension, which has no WiCAD "
                                                     "equivalent. An aligned dimension was loaded instead." ),
                                                  csDim.ID ) );
                 KI_FALLTHROUGH;
@@ -1473,7 +1473,7 @@ void CADSTAR_PCB_ARCHIVE_LOADER::loadDimensions()
                 if( csDim.Line.Style == DIMENSION::LINE::STYLE::EXTERNAL )
                 {
                     reportWarning( wxString::Format( _( "Dimension ID %s has 'External' style in CADSTAR. External "
-                                                        "dimension styles are not yet supported in KiCad. The "
+                                                        "dimension styles are not yet supported in WiCAD. The "
                                                         "dimension object was imported with an internal dimension "
                                                         "style instead." ),
                                                      csDim.ID ) );
@@ -1664,7 +1664,7 @@ void CADSTAR_PCB_ARCHIVE_LOADER::loadDimensions()
 
         case DIMENSION::TYPE::ANGLEDIM:
             //TODO: update import when KiCad supports angular dimensions
-            reportError( wxString::Format( _( "Dimension %s is an angular dimension which has no KiCad equivalent. "
+            reportError( wxString::Format( _( "Dimension %s is an angular dimension which has no WiCAD equivalent. "
                                               "The object was not imported." ),
                                            csDim.ID ) );
             break;
@@ -1705,14 +1705,14 @@ void CADSTAR_PCB_ARCHIVE_LOADER::loadAreas()
             if( area.Placement )
             {
                 reportWarning( wxString::Format( _( "The CADSTAR area '%s' is marked as a placement area in "
-                                                    "CADSTAR. Placement areas are not supported in KiCad. Only "
+                                                    "CADSTAR. Placement areas are not supported in WiCAD. Only "
                                                     "the supported elements for the area were imported." ),
                                                  area.Name ) );
             }
         }
         else
         {
-            reportError( wxString::Format( _( "The CADSTAR area '%s' does not have a KiCad equivalent. Pure "
+            reportError( wxString::Format( _( "The CADSTAR area '%s' does not have a WiCAD equivalent. Pure "
                                               "Placement areas are not supported." ),
                                            area.Name ) );
         }
@@ -1929,7 +1929,7 @@ void CADSTAR_PCB_ARCHIVE_LOADER::loadTemplates()
         if( csTemplate.Pouring.AllowInNoRouting )
         {
             reportWarning( wxString::Format( _( "The CADSTAR template '%s' has the setting 'Allow in No Routing "
-                                                "Areas' enabled. This setting has no KiCad equivalent, so it has "
+                                                "Areas' enabled. This setting has no WiCAD equivalent, so it has "
                                                 "been ignored." ),
                                              csTemplate.Name ) );
         }
@@ -1937,7 +1937,7 @@ void CADSTAR_PCB_ARCHIVE_LOADER::loadTemplates()
         if( csTemplate.Pouring.BoxIsolatedPins )
         {
             reportWarning( wxString::Format( _( "The CADSTAR template '%s' has the setting 'Box Isolated Pins' "
-                                                "enabled. This setting has no KiCad equivalent, so it has been "
+                                                "enabled. This setting has no WiCAD equivalent, so it has been "
                                                 "ignored." ),
                                              csTemplate.Name ) );
         }
@@ -1945,7 +1945,7 @@ void CADSTAR_PCB_ARCHIVE_LOADER::loadTemplates()
         if( csTemplate.Pouring.AutomaticRepour )
         {
             reportWarning( wxString::Format( _( "The CADSTAR template '%s' has the setting 'Automatic Repour' "
-                                                "enabled. This setting has no KiCad equivalent, so it has been "
+                                                "enabled. This setting has no WiCAD equivalent, so it has been "
                                                 "ignored." ),
                                              csTemplate.Name ) );
         }
@@ -1956,7 +1956,7 @@ void CADSTAR_PCB_ARCHIVE_LOADER::loadTemplates()
         if( csTemplate.Pouring.SliverWidth != 0 )
         {
             reportWarning( wxString::Format( _( "The CADSTAR template '%s' has a non-zero value defined for the "
-                                                "'Sliver Width' setting. There is no KiCad equivalent for "
+                                                "'Sliver Width' setting. There is no WiCAD equivalent for "
                                                 "this, so this setting was ignored." ),
                                              csTemplate.Name ) );
         }
@@ -1966,9 +1966,9 @@ void CADSTAR_PCB_ARCHIVE_LOADER::loadTemplates()
         {
             reportWarning( wxString::Format( _( "The CADSTAR template '%s' has different settings for "
                                                 "'Retain Poured Copper - Disjoint' and "
-                                                "'Retain Poured Copper - Isolated'. KiCad does not distinguish "
+                                                "'Retain Poured Copper - Isolated'. WiCAD does not distinguish "
                                                 "between these two settings. The setting for disjoint copper "
-                                                "has been applied as the minimum island area of the KiCad Zone." ),
+                                                "has been applied as the minimum island area of the WiCAD Zone." ),
                                              csTemplate.Name ) );
         }
 
@@ -2016,7 +2016,7 @@ void CADSTAR_PCB_ARCHIVE_LOADER::loadTemplates()
                        != csTemplate.Pouring.ThermalReliefViasAngle )
         {
             reportWarning( wxString::Format( _( "The CADSTAR template '%s' has different settings for thermal relief "
-                                                "in pads and vias. KiCad only supports one single setting for both. "
+                                                "in pads and vias. WiCAD only supports one single setting for both. "
                                                 "The setting for pads has been applied." ),
                                              csTemplate.Name ) );
         }
@@ -2034,7 +2034,7 @@ void CADSTAR_PCB_ARCHIVE_LOADER::loadTemplates()
                 reportWarning( wxString::Format( _( "The CADSTAR template '%s' has thermal reliefs in the original "
                                                     "design but the spoke width (%.2f mm) is thinner "    //format:allow
                                                     "than the minimum thickness of the zone (%.2f mm). "  //format:allow
-                                                    "KiCad requires the minimum thickness of the zone to be preserved. "
+                                                    "WiCAD requires the minimum thickness of the zone to be preserved. "
                                                     "Therefore the minimum thickness has been applied as the new "
                                                     "spoke width and will be applied next time the zones are filled." ),
                          csTemplate.Name, (double) getKiCadLength( spokeWidth ) / 1E6,
@@ -2173,9 +2173,9 @@ void CADSTAR_PCB_ARCHIVE_LOADER::loadCoppers()
 
         if( !m_doneCopperWarning )
         {
-            reportWarning( _( "The CADSTAR design contains COPPER elements, which have no direct KiCad "
-                              "equivalent. These have been imported as a KiCad Zone if solid or hatch "
-                              "filled, or as a KiCad Track if the shape was an unfilled outline (open or "
+            reportWarning( _( "The CADSTAR design contains COPPER elements, which have no direct WiCAD "
+                              "equivalent. These have been imported as a WiCAD Zone if solid or hatch "
+                              "filled, or as a WiCAD Track if the shape was an unfilled outline (open or "
                               "closed)." ) );
             m_doneCopperWarning = true;
         }
@@ -2594,7 +2594,7 @@ int CADSTAR_PCB_ARCHIVE_LOADER::loadNetVia( const NET_ID& aCadstarNetID, const N
     if( csViaCode.Shape.ShapeType != PAD_SHAPE_TYPE::CIRCLE )
     {
         reportError( wxString::Format( _( "The CADSTAR via code '%s' has different shape from a circle defined. "
-                                          "KiCad only supports circular vias so this via type has been changed to "
+                                          "WiCAD only supports circular vias so this via type has been changed to "
                                           "be a via with circular shape of %.2f mm diameter." ), //format:allow
                                        csViaCode.Name,
                                        (double) getKiCadLength( csViaCode.Shape.Size ) / 1E6 ) );
@@ -3612,7 +3612,7 @@ void CADSTAR_PCB_ARCHIVE_LOADER::checkAndLogHatchCode( const HATCHCODE_ID& aCads
         if( hcode.Hatches.size() != 2 )
         {
             reportWarning( wxString::Format( _( "The CADSTAR Hatching code '%s' has %d hatches defined. "
-                                                "KiCad only supports 2 hatches (crosshatching) 90 degrees apart. "
+                                                "WiCAD only supports 2 hatches (crosshatching) 90 degrees apart. "
                                                 "The imported hatching is crosshatched." ),
                                              hcode.Name,
                                              (int) hcode.Hatches.size() ) );
@@ -3622,7 +3622,7 @@ void CADSTAR_PCB_ARCHIVE_LOADER::checkAndLogHatchCode( const HATCHCODE_ID& aCads
             if( hcode.Hatches.at( 0 ).LineWidth != hcode.Hatches.at( 1 ).LineWidth )
             {
                 reportWarning( wxString::Format( _( "The CADSTAR Hatching code '%s' has different line widths for "
-                                                    "each hatch. KiCad only supports one width for the hatching. The "
+                                                    "each hatch. WiCAD only supports one width for the hatching. The "
                                                     "imported hatching uses the width defined in the first hatch "
                                                     "definition, i.e. %.2f mm." ),    //format:allow
                                                  hcode.Name,
@@ -3632,7 +3632,7 @@ void CADSTAR_PCB_ARCHIVE_LOADER::checkAndLogHatchCode( const HATCHCODE_ID& aCads
             if( hcode.Hatches.at( 0 ).Step != hcode.Hatches.at( 1 ).Step )
             {
                 reportWarning( wxString::Format( _( "The CADSTAR Hatching code '%s' has different step sizes for "
-                                                    "each hatch. KiCad only supports one step size for the hatching. "
+                                                    "each hatch. WiCAD only supports one step size for the hatching. "
                                                     "The imported hatching uses the step size defined in the first "
                                                     "hatching definition, i.e. %.2f mm." ), //format:allow
                                                  hcode.Name,
@@ -3642,7 +3642,7 @@ void CADSTAR_PCB_ARCHIVE_LOADER::checkAndLogHatchCode( const HATCHCODE_ID& aCads
             if( abs( hcode.Hatches.at( 0 ).OrientAngle - hcode.Hatches.at( 1 ).OrientAngle ) != 90000 )
             {
                 reportWarning( wxString::Format( _( "The hatches in CADSTAR Hatching code '%s' have an angle  "
-                                                    "difference of %.1f degrees. KiCad only supports hatching 90 "   //format:allow
+                                                    "difference of %.1f degrees. WiCAD only supports hatching 90 "   //format:allow
                                                     "degrees apart.  The imported hatching has two hatches 90 "
                                                     "degrees apart, oriented %.1f degrees from horizontal." ),       //format:allow
                                                  hcode.Name,
@@ -3710,7 +3710,7 @@ void CADSTAR_PCB_ARCHIVE_LOADER::applyDimensionSettings( const DIMENSION&  aCads
     case UNITS::METER:
     case UNITS::CENTIMETER:
     case UNITS::MICROMETRE:
-        reportWarning( wxString::Format( _( "Dimension ID %s uses a type of unit that is not supported in KiCad. "
+        reportWarning( wxString::Format( _( "Dimension ID %s uses a type of unit that is not supported in WiCAD. "
                                             "Millimeters were applied instead." ),
                                          aCadstarDim.ID ) );
         KI_FALLTHROUGH;
@@ -3987,9 +3987,9 @@ NETINFO_ITEM* CADSTAR_PCB_ARCHIVE_LOADER::getKiCadNet( const NET_ID& aCadstarNet
 
         if( !m_doneNetClassWarning && !csNet.NetClassID.IsEmpty() && csNet.NetClassID != wxT( "NONE" ) )
         {
-            reportInfo( _( "The CADSTAR design contains nets with a 'Net Class' assigned. KiCad "
+            reportInfo( _( "The CADSTAR design contains nets with a 'Net Class' assigned. WiCAD "
                            "does not have an equivalent to CADSTAR's Net Class so these elements "
-                           "were not imported. Note: KiCad's version of 'Net Class' is closer to "
+                           "were not imported. Note: WiCAD's version of 'Net Class' is closer to "
                            "CADSTAR's 'Net Route Code' (which has been imported for all nets)." ) );
             m_doneNetClassWarning = true;
         }
@@ -3997,7 +3997,7 @@ NETINFO_ITEM* CADSTAR_PCB_ARCHIVE_LOADER::getKiCadNet( const NET_ID& aCadstarNet
         if( !m_doneSpacingClassWarning && !csNet.SpacingClassID.IsEmpty() && csNet.SpacingClassID != wxT( "NONE" ) )
         {
             reportWarning( _( "The CADSTAR design contains nets with a 'Spacing Class' assigned. "
-                              "KiCad does not have an equivalent to CADSTAR's Spacing Class so "
+                              "WiCAD does not have an equivalent to CADSTAR's Spacing Class so "
                               "these elements were not imported. Please review the design rules as "
                               "copper pours may be affected by this." ) );
             m_doneSpacingClassWarning = true;

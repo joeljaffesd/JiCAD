@@ -396,7 +396,7 @@ void DIALOG_BOM::OnEditGenerator( wxCommandEvent& event )
     if( !editorname.IsEmpty() )
         ExecuteFile( editorname, pluginFile );
     else
-        wxMessageBox( _( "No text editor selected in KiCad.  Please choose one." ) );
+        wxMessageBox( _( "No text editor selected in WiCAD.  Please choose one." ) );
 }
 
 

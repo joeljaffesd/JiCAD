@@ -902,7 +902,7 @@ int BOARD_EDITOR_CONTROL::UpdateSchematicFromPCB( const TOOL_EVENT& aEvent )
     {
         DisplayErrorMessage( m_frame, _( "Cannot update schematic because Pcbnew is opened in "
                                          "stand-alone mode. In order to create or update PCBs "
-                                         "from schematics, you must launch the KiCad project "
+                                         "from schematics, you must launch the WiCAD project "
                                          "manager and create a project." ) );
         return 0;
     }

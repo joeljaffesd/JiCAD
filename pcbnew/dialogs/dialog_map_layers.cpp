@@ -272,7 +272,7 @@ DIALOG_MAP_LAYERS::DIALOG_MAP_LAYERS( wxWindow* aParent, const std::vector<INPUT
 
     wxListItem kicadLayersHeader;
     kicadLayersHeader.SetId( 0 );
-    kicadLayersHeader.SetText( _( "KiCad Layer" ) );
+    kicadLayersHeader.SetText( _( "WiCAD Layer" ) );
     kicadLayersHeader.SetWidth( kicadMaxTextWidth + 5 );
     m_kicad_layers_list->InsertColumn( 0, kicadLayersHeader );
 

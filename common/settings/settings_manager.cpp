@@ -1782,7 +1782,7 @@ bool SETTINGS_MANAGER::TriggerBackupIfNeeded( REPORTER& aReporter ) const
         if( totalSize > limit )
         {
             aReporter.Report( _( "One backup of this project is larger than the total backup size "
-                                 "limit.  KiCad kept the new backup; increase the limit in "
+                                 "limit.  WiCAD kept the new backup; increase the limit in "
                                  "Preferences." ),
                               RPT_SEVERITY_WARNING );
         }

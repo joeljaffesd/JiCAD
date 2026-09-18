@@ -378,7 +378,7 @@ void FOOTPRINT_IMPORT_RECONCILER::writeAndRegisterCache(
 
     if( !pi )
     {
-        m_reporter.Report( _( "Cannot reconcile imported footprints: no KiCad footprint "
+        m_reporter.Report( _( "Cannot reconcile imported footprints: no WiCAD footprint "
                               "writer." ), RPT_SEVERITY_ERROR );
         return;
     }

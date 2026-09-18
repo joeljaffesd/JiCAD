@@ -839,7 +839,7 @@ int FOOTPRINT_EDITOR_CONTROL::OpenWithTextEditor( const TOOL_EVENT& aEvent )
 
     if( fullEditorName.IsEmpty() )
     {
-        wxMessageBox( _( "No text editor selected in KiCad. Please choose one." ) );
+        wxMessageBox( _( "No text editor selected in WiCAD. Please choose one." ) );
         return 0;
     }
 

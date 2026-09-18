@@ -1122,7 +1122,7 @@ void PROJECT_TREE_PANE::onOpenSelectedFileWithTextEditor( wxCommandEvent& event 
 
     if( editorname.IsEmpty() )
     {
-        wxMessageBox( _( "No text editor selected in KiCad.  Please choose one." ) );
+        wxMessageBox( _( "No text editor selected in WiCAD.  Please choose one." ) );
         return;
     }
 

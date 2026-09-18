@@ -385,7 +385,7 @@ void CADSTAR_SCH_ARCHIVE_LOADER::Load( SCHEMATIC* aSchematic, SCH_SHEET* aRootSh
     if( Schematic.VariantHierarchy.Variants.size() > 0 )
     {
         m_reporter->Report( wxString::Format( _( "The CADSTAR design contains variants which has "
-                                                 "no KiCad equivalent. Only the master variant "
+                                                 "no WiCAD equivalent. Only the master variant "
                                                  "('%s') was loaded." ),
                                               Schematic.VariantHierarchy.Variants.at( "V0" ).Name ),
                             RPT_SEVERITY_WARNING );
@@ -393,14 +393,14 @@ void CADSTAR_SCH_ARCHIVE_LOADER::Load( SCHEMATIC* aSchematic, SCH_SHEET* aRootSh
 
     if( Schematic.Groups.size() > 0 )
     {
-        m_reporter->Report( _( "The CADSTAR design contains grouped items which has no KiCad "
+        m_reporter->Report( _( "The CADSTAR design contains grouped items which has no WiCAD "
                                "equivalent. Any grouped items have been ungrouped." ),
                             RPT_SEVERITY_WARNING );
     }
 
     if( Schematic.ReuseBlocks.size() > 0 )
     {
-        m_reporter->Report( _( "The CADSTAR design contains re-use blocks which has no KiCad "
+        m_reporter->Report( _( "The CADSTAR design contains re-use blocks which has no WiCAD "
                                "equivalent. The re-use block information has been discarded during "
                                "the import." ),
                             RPT_SEVERITY_WARNING );
@@ -514,7 +514,7 @@ void CADSTAR_SCH_ARCHIVE_LOADER::Load( SCHEMATIC* aSchematic, SCH_SHEET* aRootSh
 
     checkPoint();
 
-    m_reporter->Report( _( "CADSTAR fonts are different to the ones in KiCad. This will likely "
+    m_reporter->Report( _( "CADSTAR fonts are different to the ones in WiCAD. This will likely "
                            "result in alignment issues. Please review the imported text elements "
                            "carefully and correct manually if required." ),
                         RPT_SEVERITY_WARNING );
@@ -537,7 +537,7 @@ void CADSTAR_SCH_ARCHIVE_LOADER::checkDesignLimits()
 
     if( designSizeXkicad > maxDesignSizekicad || designSizeYkicad > maxDesignSizekicad )
     {
-        THROW_IO_ERRORF( _( "The design is too large and cannot be imported into KiCad. \n"
+        THROW_IO_ERRORF( _( "The design is too large and cannot be imported into WiCAD. \n"
                             "Please reduce the maximum design size in CADSTAR by navigating to: \n"
                             "Design Tab -> Properties -> Design Options -> Maximum Design Size. \n"
                             "Current Design size: %.2f, %.2f millimeters. \n" //format:allow
@@ -1002,7 +1002,7 @@ void CADSTAR_SCH_ARCHIVE_LOADER::loadSchematicSymbolInstances()
                 symbolName += sym.GateID;
 
             m_reporter->Report( wxString::Format( _( "Symbol '%s' is scaled in the original CADSTAR schematic "
-                                                     "but this is not supported in KiCad. When the symbol is "
+                                                     "but this is not supported in WiCAD. When the symbol is "
                                                      "reloaded from the library, it will revert to the original "
                                                      "1:1 scale." ),
                                                   symbolName,
@@ -2105,7 +2105,7 @@ SCH_SYMBOL* CADSTAR_SCH_ARCHIVE_LOADER::loadSchematicSymbol( const SYMBOL& aCads
     {
         m_reporter->Report( wxString::Format( _( "Symbol '%s' is rotated by an angle of %.1f " //format:allow
                                                  "degrees in the original CADSTAR design but "
-                                                 "KiCad only supports rotation angles multiples "
+                                                 "WiCAD only supports rotation angles multiples "
                                                  "of 90 degrees. The connecting wires will need "
                                                  "manual fixing." ),
                                               aCadstarSymbol.ComponentRef.Designator,
@@ -2530,7 +2530,7 @@ void CADSTAR_SCH_ARCHIVE_LOADER::loadChildSheets( const LAYER_ID& aCadstarSheetI
                 {
                     m_reporter->Report( wxString::Format( _( "The block ID %s (Block name: '%s') is drawn on sheet "
                                                              "'%s' but is not linked to another sheet in the design. "
-                                                             "KiCad requires all sheet symbols to be associated to a "
+                                                             "WiCAD requires all sheet symbols to be associated to a "
                                                              "sheet, so the block was not loaded." ),
                                                           block.ID, block.Name,
                                                           Sheets.SheetNames.at( aCadstarSheetID ) ),

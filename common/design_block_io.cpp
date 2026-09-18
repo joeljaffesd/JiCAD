@@ -61,7 +61,7 @@ DESIGN_BLOCK_IO_MGR::EnumFromStr( const wxString& aFileType )
         return DESIGN_BLOCK_FILE_T::KICAD_SEXP;
     else if( aFileType == LIBRARY_TABLE_ROW::TABLE_TYPE_NAME )
         return DESIGN_BLOCK_FILE_T::NESTED_TABLE;
-    else if( aFileType == _( "KiCad" ) )
+    else if( aFileType == _( "WiCAD" ) )
     {
         // Accept the legacy translated token so tables written by older releases under a
         // locale that translated "KiCad" still load.
@@ -160,7 +160,7 @@ bool DESIGN_BLOCK_IO_MGR::ConvertLibrary( std::map<std::string, UTF8>* aOldFileP
 
 const DESIGN_BLOCK_IO::IO_FILE_DESC DESIGN_BLOCK_IO::GetLibraryDesc() const
 {
-    return IO_BASE::IO_FILE_DESC( _HKI( "KiCad Design Block folders" ), {},
+    return IO_BASE::IO_FILE_DESC( _HKI( "WiCAD Design Block folders" ), {},
                                   { FILEEXT::KiCadDesignBlockLibPathExtension }, false );
 }
 

@@ -46,7 +46,7 @@
 CLI::IMPORT_COMMAND::IMPORT_COMMAND() : COMMAND( "import" )
 {
     m_argParser.add_description( UTF8STDSTR(
-            _( "Import non-KiCad board and/or schematic files into a new KiCad project" ) ) );
+            _( "Import non-KiCad board and/or schematic files into a new WiCAD project" ) ) );
 
     m_argParser.add_argument( ARG_INPUT )
             .help( UTF8STDSTR( _( "Input file(s) to import; each is autodetected as a board or "
@@ -63,7 +63,7 @@ CLI::IMPORT_COMMAND::IMPORT_COMMAND() : COMMAND( "import" )
 
     m_argParser.add_argument( ARG_LAYER_MAP )
             .default_value( std::string( "" ) )
-            .help( UTF8STDSTR( _( "JSON file mapping source layer names to KiCad layer names for "
+            .help( UTF8STDSTR( _( "JSON file mapping source layer names to WiCAD layer names for "
                                   "imported boards; unmapped layers use the automatic best-guess" ) ) )
             .metavar( "FILE" );
 }

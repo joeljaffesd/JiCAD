@@ -49,7 +49,7 @@ CLI::GIT_MERGEDRIVER_COMMAND::GIT_MERGEDRIVER_COMMAND() :
     m_argParser.set_suppress( true );
 
     m_argParser.add_description(
-            UTF8STDSTR( _( "Internal git merge-driver hook (configured automatically by KiCad's "
+            UTF8STDSTR( _( "Internal git merge-driver hook (configured automatically by WiCAD's "
                            "git integration; not intended for direct use)." ) ) );
 
     m_argParser.add_argument( ARG_KIND )

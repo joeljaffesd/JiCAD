@@ -397,7 +397,7 @@ wxString FILEEXT::KiCadFootprintLibPathWildcard()
 
 wxString FILEEXT::KiCadDesignBlockPathWildcard()
 {
-    return _( "KiCad design block path" )
+    return _( "WiCAD design block path" )
            + AddFileExtListToFilter( { KiCadDesignBlockPathExtension } );
 }
 

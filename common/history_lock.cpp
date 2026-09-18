@@ -165,7 +165,7 @@ bool HISTORY_LOCK_MANAGER::acquireFileLock()
 
     if( !legacyLock.Valid() )
     {
-        m_lockError = _( "History repository is locked by an older KiCad instance." );
+        m_lockError = _( "History repository is locked by an older WiCAD instance." );
         return false;
     }
 

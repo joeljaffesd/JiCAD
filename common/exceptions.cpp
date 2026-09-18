@@ -115,17 +115,17 @@ void FUTURE_FORMAT_ERROR::init( const wxString& aRequiredVersion,
 
     if( requiredGenerator.IsEmpty() )
     {
-        problem.Printf( _( "KiCad was unable to open this file because it was created with a more "
+        problem.Printf( _( "WiCAD was unable to open this file because it was created with a more "
                            "recent version than the one you are running.\n\n"
-                           "To open it you will need to upgrade KiCad to a version dated %s or "
+                           "To open it you will need to upgrade WiCAD to a version dated %s or "
                            "later." ),
                         aRequiredVersion );
     }
     else
     {
-        problem.Printf( _( "KiCad was unable to open this file because it was created with a more "
+        problem.Printf( _( "WiCAD was unable to open this file because it was created with a more "
                            "recent version than the one you are running.\n\n"
-                           "To open it you will need to upgrade KiCad to version %s or "
+                           "To open it you will need to upgrade WiCAD to version %s or "
                            "later (file format dated %s or later)." ),
                         aRequiredGenerator, aRequiredVersion );
     }

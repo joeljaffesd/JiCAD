@@ -478,12 +478,12 @@ void COLOR_SETTINGS::SetColor( int aLayer, const COLOR4D& aColor )
 std::vector<COLOR_SETTINGS*> COLOR_SETTINGS::CreateBuiltinColorSettings()
 {
     COLOR_SETTINGS* defaultTheme = new COLOR_SETTINGS( COLOR_BUILTIN_DEFAULT );
-    defaultTheme->SetName( _( "KiCad Default" ) );
+    defaultTheme->SetName( _( "WiCAD Default" ) );
     defaultTheme->m_writeFile = false;
     defaultTheme->Load();   // We can just get the colors out of the param defaults for this one
 
     COLOR_SETTINGS* classicTheme = new COLOR_SETTINGS( COLOR_BUILTIN_CLASSIC );
-    classicTheme->SetName( _( "KiCad Classic" ) );
+    classicTheme->SetName( _( "WiCAD Classic" ) );
     classicTheme->m_writeFile = false;
 
     for( PARAM_BASE* param : classicTheme->m_params )
