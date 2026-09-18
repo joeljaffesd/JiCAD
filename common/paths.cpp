@@ -573,9 +573,9 @@ wxString PATHS::GetOSXKicadUserDataDir()
     wxFileName udir( wxStandardPaths::Get().GetUserDataDir(), wxEmptyString );
 
     // Since appname is different if started via launcher or standalone binary
-    // map all to "kicad" here
+    // map all to "wicad" here (WiCAD keeps its user data apart from an installed KiCad)
     udir.RemoveLastDir();
-    udir.AppendDir(  wxT( "kicad" ) );
+    udir.AppendDir(  wxT( "wicad" ) );
 
     return udir.GetPath();
 }

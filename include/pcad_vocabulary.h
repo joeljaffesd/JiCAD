@@ -36,6 +36,9 @@
  */
 KICOMMON_API wxString PCadLabel( const std::string& aActionName, const wxString& aText, bool aIsLabel );
 
+/// The fork's name in user-visible text: "KiCad" -> "WiCAD" as a whole word.  Applies in every mode.
+KICOMMON_API wxString WiCadBrand( const wxString& aText );
+
 /// Apply only the word substitutions (for text that does not belong to an action).
 KICOMMON_API wxString PCadWording( const wxString& aText );
 

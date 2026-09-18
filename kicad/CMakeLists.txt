@@ -171,6 +171,7 @@ endif()
 if( APPLE )
     set_target_properties( kicad PROPERTIES
         MACOSX_BUNDLE_INFO_PLIST ${PROJECT_BINARY_DIR}/kicad/Info.plist
+        OUTPUT_NAME ${OSX_BUNDLE_EXECUTABLE}    # makes CMake build ${OSX_BUNDLE_MAIN} rather than kicad.app
         )
     target_link_libraries( kicad
         nlohmann_json
@@ -252,6 +253,7 @@ if( APPLE )
         set( KICAD_CMAKE_MODULE_PATH \"${KICAD_CMAKE_MODULE_PATH}\" )
         set( KICAD_APPLE_RUNTIME_DEP_DIRS \"${KICAD_APPLE_RUNTIME_DEP_DIRS}\" )
         set( OSX_BUNDLE_INSTALL_BIN_DIR \"${OSX_BUNDLE_INSTALL_BIN_DIR}\" )
+        set( OSX_BUNDLE_EXECUTABLE \"${OSX_BUNDLE_EXECUTABLE}\" )
         set( OSX_BUNDLE_INSTALL_LIB_DIR \"${OSX_BUNDLE_INSTALL_LIB_DIR}\" )
     " )
 
@@ -259,7 +261,7 @@ if( APPLE )
         include( ${KICAD_CMAKE_MODULE_PATH}/InstallSteps/InstallMacOS.cmake )
 
         # Install the main bundle
-        install_runtime_deps( "${OSX_BUNDLE_INSTALL_BIN_DIR}/kicad"
+        install_runtime_deps( "${OSX_BUNDLE_INSTALL_BIN_DIR}/${OSX_BUNDLE_EXECUTABLE}"
             ""
             ""
             )

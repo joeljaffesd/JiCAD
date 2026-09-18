@@ -32,7 +32,7 @@ the wxWidgets build keeps everything on one libc++. `configure.sh` also passes `
 conda-forge's documented remedy for newer libc++ marking `<chrono>` time zone support as macOS 15.4+.
 
 ## Notes
-- `pixi run install` stages a self-contained `KiCad.app` in `build/install/` (nothing is installed system-wide); it relies
+- `pixi run install` stages a self-contained `WiCAD.app` in `build/install/` (nothing is installed system-wide); it relies
   on `KICAD_APPLE_RUNTIME_DEP_DIRS` so the @rpath-named conda-forge dylibs are copied into the bundle.
 - `pixi run app` stages the bundle first (the build-tree bundle has no icons/resources, only `build/install/` is runnable) and
   runs the binary directly instead of `open`. `pixi run install` also unregisters the dev bundles from LaunchServices, because

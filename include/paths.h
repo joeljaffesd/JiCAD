@@ -33,9 +33,9 @@
 
 // lowercase or pretty case depending on platform
 #if defined( __WXMAC__ ) || defined( __WXMSW__ )
-#define KICAD_PATH_STR wxT( "KiCad" )
+#define KICAD_PATH_STR wxT( "WiCAD" )
 #else
-#define KICAD_PATH_STR  wxT( "kicad" )
+#define KICAD_PATH_STR  wxT( "wicad" )
 #endif
 
 /**

@@ -1068,6 +1068,12 @@ static void buildKicadAboutBanner( EDA_BASE_FRAME* aParent, ABOUT_APP_INFO& aInf
                 << wxT( "</u></b>" ); // bold & underlined font for caption
 
     description << wxT( "<p>" )
+                << _( "WiCAD is a fork of KiCad with a P-CAD mode: its schematic and PCB editors can look, "
+                      "feel and behave like P-CAD 2006, while every file stays native KiCad. WiCAD is not "
+                      "affiliated with or endorsed by the KiCad project." )
+                << wxT( "</p>" );
+
+    description << wxT( "<p>" )
                 << _( "The KiCad EDA Suite is a set of open source applications for the "
                       "creation of electronic schematics and printed circuit boards." )
                 << wxT( "</p>" );

@@ -131,8 +131,9 @@ if( KICAD_BUILD_NATIVE_MODEL_PREVIEW )
     add_compile_definitions( KICAD_NATIVE_MODEL_PREVIEW )
 endif()
 
-set( KICAD_BUNDLE_ID "org.kicad.kicad"
-    CACHE STRING "Bundle identifier for the containing KiCad application" )
+# WiCAD: its own bundle identifier, so the dev build never registers under KiCad's with LaunchServices
+set( KICAD_BUNDLE_ID "com.jaffesd.wicad"
+    CACHE STRING "Bundle identifier for the containing WiCAD application" )
 
 cmake_dependent_option( KICAD_WAYLAND
     "Support Wayland features"
@@ -337,7 +338,8 @@ add_compile_definitions( $<$<CONFIG:Debug>:DEBUG> )
 # Add option to add user directories for linker, if any
 link_directories( ${LINK_DIRECTORIES_PATH} )
 
-set( KICAD_CONFIG_DIR "kicad" CACHE STRING "Location of user specific KiCad config files" )
+# WiCAD keeps its settings apart from an installed KiCad
+set( KICAD_CONFIG_DIR "wicad" CACHE STRING "Location of user specific WiCAD config files" )
 mark_as_advanced( KICAD_CONFIG_DIR )
 add_compile_definitions( KICAD_CONFIG_DIR=${KICAD_CONFIG_DIR} )
 
@@ -731,7 +733,11 @@ else()
         CACHE PATH "Location of KiCad binaries." FORCE )
 
     # some paths to single app bundle
-    set( OSX_BUNDLE_MAIN "KiCad.app" )
+    # WiCAD: the app bundle and its main executable carry the fork's name.  Upstream names the target
+    # "kicad" and relies on the case-insensitive filesystem to make CMake's kicad.app land in KiCad.app;
+    # with a different name the bundle and executable must be named explicitly (see kicad/CMakeLists.txt).
+    set( OSX_BUNDLE_EXECUTABLE "WiCAD" )
+    set( OSX_BUNDLE_MAIN "${OSX_BUNDLE_EXECUTABLE}.app" )
     set( OSX_BUNDLE_BIN_DIR "Contents/MacOS" )
     set( OSX_BUNDLE_LIB_DIR "Contents/Frameworks" )
     set( OSX_BUNDLE_KIFACE_DIR "Contents/PlugIns" )

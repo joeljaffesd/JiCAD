@@ -72,5 +72,5 @@ install = "ninja -C $KICAD_BUILD_DIR install && bash pixi/unregister_bundles.sh"
 # KiCad's bundle id, which can make Finder open project files with the dev build instead of the installed KiCad
 # depends on install: the build-tree bundle has no resources (icons etc.), only the staged one is runnable
 # macOS registers a bundle with LaunchServices whenever one of its binaries runs, so unregister again on exit
-app = { cmd = "$KICAD_BUILD_DIR/install/KiCad.app/Contents/MacOS/kicad; bash pixi/unregister_bundles.sh", depends-on = ["install"] }
+app = { cmd = "$KICAD_BUILD_DIR/install/WiCAD.app/Contents/MacOS/WiCAD; bash pixi/unregister_bundles.sh", depends-on = ["install"] }
 clean = "rm -rf $KICAD_BUILD_DIR"

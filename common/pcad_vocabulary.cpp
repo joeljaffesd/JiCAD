@@ -227,6 +227,17 @@ static void replaceWord( wxString& aText, const wxString& aFrom, const wxString&
 }
 
 
+wxString WiCadBrand( const wxString& aText )
+{
+    if( !aText.Contains( wxS( "KiCad" ) ) )
+        return aText;
+
+    wxString result = aText;
+    replaceWord( result, wxS( "KiCad" ), wxS( "WiCAD" ) );
+    return result;
+}
+
+
 wxString PCadWording( const wxString& aText )
 {
     static std::map<wxString, wxString> cache;

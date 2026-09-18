@@ -29,8 +29,17 @@ function( sign_kicad_bundle target signing_id use_secure_timestamp use_hardened_
 
     # add all the files in Contents/MacOS/
     # But we've gotta sign kicad-cli before signing kicad, at least on x86_64
-    set( kicad_bins "${target}/Contents/MacOS/kicad-cli"
-            "${target}/Contents/MacOS/kicad")
+    set( kicad_bins "${target}/Contents/MacOS/kicad-cli" )
+
+    # the main executable is named after the bundle (kicad upstream, WiCAD here); it must be signed last
+    get_filename_component( main_executable "${target}" NAME_WE )
+
+    foreach( candidate "${target}/Contents/MacOS/${main_executable}" "${target}/Contents/MacOS/kicad" )
+        if( EXISTS "${candidate}" )
+            list( APPEND kicad_bins "${candidate}" )
+            break()
+        endif()
+    endforeach()
 
     if( use_sentry )
         set( sign_list ${sign_list} "${target}/Contents/MacOS/crashpad_handler" )
