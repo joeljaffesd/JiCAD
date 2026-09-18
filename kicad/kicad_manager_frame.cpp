@@ -289,7 +289,7 @@ KICAD_MANAGER_FRAME::KICAD_MANAGER_FRAME( wxWindow* parent, const wxString& titl
     if( ADVANCED_CFG::GetCfg().m_HideVersionFromTitle )
         SetTitle( wxT( "WiCAD" ) );
     else
-        SetTitle( wxString( "KiCad " ) + GetMajorMinorVersion() );
+        SetTitle( wxString( "WiCAD " ) + GetMajorMinorVersion() );
 
     // Do not let the messages window have initial focus
     m_projectTreePane->SetFocus();
@@ -975,7 +975,7 @@ bool KICAD_MANAGER_FRAME::LoadProject( const wxFileName& aProjectFileName )
     {
         wxString head = Kiway().LocalHistory().GetHeadHash( Prj().GetProjectPath() );
 
-        KICAD_MESSAGE_DIALOG dlg( this, _( "KiCad found unsaved changes from your last session that are newer than "
+        KICAD_MESSAGE_DIALOG dlg( this, _( "WiCAD found unsaved changes from your last session that are newer than "
                                            "the saved project files." ),
                                   _( "Recover Unsaved Changes" ), wxYES_NO | wxICON_QUESTION );
 
