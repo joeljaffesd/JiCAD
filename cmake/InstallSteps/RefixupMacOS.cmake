@@ -44,6 +44,8 @@ function( refix_kicad_bundle target )
         elseif( "${item}" MATCHES "/Contents/PlugIns/3d/[^/]+\\.so$" )
             delete_all_rpaths( ${item} )
             refix_rpaths( ${item} "@loader_path" )
+        else()
+            delete_external_rpaths( ${item} )
         endif()
     endforeach( )
 
@@ -73,6 +75,7 @@ function( refix_kicad_bundle target )
             message( "Refixing rpaths and prereqs for '${binary}'" )
             #refix_rpaths( ${binary} )
             refix_prereqs( ${binary} )
+            delete_external_rpaths( ${binary} )
         endforeach( )
     endforeach( )
 
@@ -80,6 +83,7 @@ function( refix_kicad_bundle target )
     foreach( binary ${binaries} )
         message( "Refixing prereqs for '${binary}'" )
         refix_prereqs( ${binary} )
+        delete_external_rpaths( ${binary} )
         if( ${binary} MATCHES "kicad-cli" )
             message( "Refixing rppath for '${binary}'" )
             delete_all_rpaths( ${binary} )
@@ -95,6 +99,44 @@ function( refix_kicad_bundle target )
     # message( "Refixing start time: ${start_time}\nRefixing end time: ${end_time}" )
 endfunction( )
 
+
+function( delete_external_rpaths BINARY_PATH )
+    # Toolchains can bake absolute rpaths into every binary through linker flags (for example
+    # conda-forge's LDFLAGS add -Wl,-rpath,<prefix>/lib).  CMake's INSTALL_RPATH handling does not
+    # know about those, so they survive installation and make the bundle load a second copy of
+    # libraries from outside itself.  Remove every absolute rpath; @executable_path, @loader_path
+    # and @rpath relative entries are kept.
+    execute_process(
+            COMMAND otool -l ${BINARY_PATH}
+            OUTPUT_VARIABLE OTOOL_OUTPUT
+            RESULT_VARIABLE OTOOL_RESULT
+            ERROR_QUIET
+    )
+
+    if( NOT "${OTOOL_RESULT}" STREQUAL "0" )
+        return()
+    endif()
+
+    string( REGEX MATCHALL "path /[^\n]+ \\(offset" RAW_MATCHES "${OTOOL_OUTPUT}" )
+
+    foreach( MATCH ${RAW_MATCHES} )
+        string( REGEX REPLACE "^path[ \t]*" "" RPATH_VAL "${MATCH}" )
+        string( REGEX REPLACE "[ \t]*\\(offset$" "" RPATH_VAL "${RPATH_VAL}" )
+        string( STRIP "${RPATH_VAL}" RPATH_VAL )
+
+        message( STATUS "Deleting external RPATH '${RPATH_VAL}' from ${BINARY_PATH}" )
+
+        execute_process(
+                COMMAND install_name_tool -delete_rpath "${RPATH_VAL}" "${BINARY_PATH}"
+                RESULT_VARIABLE INT_RESULT
+                ERROR_VARIABLE INT_ERR
+        )
+
+        if( NOT "${INT_RESULT}" STREQUAL "0" )
+            message( WARNING "Error removing rpath '${RPATH_VAL}': ${INT_ERR}" )
+        endif()
+    endforeach()
+endfunction()
 
 function( delete_all_rpaths BINARY_PATH )
     message(STATUS "Inspecting RPATHs for: ${BINARY_PATH}")

@@ -22,6 +22,7 @@
 #define KICAD_KINNG_H
 
 #include <atomic>
+#include <string>
 #include <condition_variable>
 #include <functional>
 #include <mutex>

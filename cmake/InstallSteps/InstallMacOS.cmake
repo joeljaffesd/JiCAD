@@ -21,13 +21,20 @@ function( install_runtime_deps exe libs dest )
     # set(CMAKE_MESSAGE_LOG_LEVEL DEBUG)
     message( DEBUG "install_runtime_deps ${exe}\n  libs: ${libs}\n  dest: ${dest}" )
 
+    # Libraries whose install name is @rpath/... (e.g. from conda-forge or a custom prefix) can only be
+    # resolved if we tell GET_RUNTIME_DEPENDENCIES where to look; KICAD_APPLE_RUNTIME_DEP_DIRS carries
+    # those directories from configure time.
     file( GET_RUNTIME_DEPENDENCIES
         LIBRARIES ${libs}
         EXECUTABLES ${exe}
+        DIRECTORIES ${KICAD_APPLE_RUNTIME_DEP_DIRS}
         RESOLVED_DEPENDENCIES_VAR _r_deps
         UNRESOLVED_DEPENDENCIES_VAR _u_deps
         POST_EXCLUDE_FILES Python
     )
+    foreach( _file ${_u_deps} )
+        message( WARNING "Unresolved runtime dependency: ${_file}" )
+    endforeach()
 
     if( "${dest}" STREQUAL "" )
         set( dest "${OSX_BUNDLE_INSTALL_LIB_DIR}" )

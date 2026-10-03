@@ -29,6 +29,7 @@
 
 #include <kicommon.h>
 #include <singleton.h>
+#include <atomic>
 #include <exception>
 #include <map>
 #include <future>

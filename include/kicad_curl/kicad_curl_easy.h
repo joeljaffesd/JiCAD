@@ -29,6 +29,7 @@
  * and including kicad_curl.h could be needed in a few sources
  */
 
+#include <vector>
 #include <kicommon.h>
 #include <functional>
 #include <memory>

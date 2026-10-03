@@ -1,0 +1,76 @@
+# Pixi (conda-forge) development environment for building KiCad on macOS.
+#
+#   pixi install            # fetch hash-locked dependencies into .pixi/
+#   pixi run deps           # build the two deps conda-forge cannot supply: KiCad's patched wxWidgets, ngspice
+#   pixi run configure      # cmake configure into build/
+#   pixi run build          # ninja build
+#   pixi run install        # install KiCad.app into build/install
+#   pixi run app            # launch the built KiCad.app
+#
+# Everything lives under the repo: .pixi/ (packages), .deps/ (wx + ngspice), build/ (KiCad).
+# The conda-forge clang toolchain is used (not Apple clang) so KiCad, wxWidgets and the conda-forge
+# libraries all share one libc++; the macOS SDK from Xcode / command line tools supplies the frameworks.
+
+[workspace]
+name = "kicad"
+channels = ["conda-forge"]
+platforms = ["osx-arm64"]
+version = "0.1.0"
+
+[dependencies]
+# toolchain: conda-forge clang so that every binary links the same libc++ as the conda-forge libraries
+clang_osx-arm64 = "*"
+clangxx_osx-arm64 = "*"
+libcxx-devel = "*"
+# build tools
+cmake = "3.31.*"
+ninja = "*"
+pkg-config = "*"
+ccache = "*"
+swig = ">=4.1"
+bison = "*"
+flex = "*"
+gettext = "*"
+autoconf = "*"
+automake = "*"
+libtool = "*"
+python = "3.13.*"
+# libraries
+libboost-devel = ">=1.85"
+cairo = "*"
+pixman = "*"
+glew = "*"
+glm = "*"
+harfbuzz = "*"
+freetype = "*"
+fontconfig = "*"
+occt = "7.9.*"
+libprotobuf = "*"
+nng = "*"
+libgit2 = "*"
+zstd = "*"
+zlib = "*"
+libcurl = "*"
+llvm-openmp = "*"
+unixodbc = "*"
+libjpeg-turbo = "*"
+libpng = "*"
+expat = "*"
+
+[activation]
+scripts = ["pixi/activate.sh"]
+env = { MACOSX_DEPLOYMENT_TARGET = "12.0", KICAD_DEPS = "$PIXI_PROJECT_ROOT/.deps", KICAD_BUILD_DIR = "$PIXI_PROJECT_ROOT/build" }
+
+[tasks]
+deps-wx = "bash pixi/build_wx.sh"
+deps-ngspice = "bash pixi/build_ngspice.sh"
+deps = { depends-on = ["deps-wx", "deps-ngspice"] }
+configure = "bash pixi/configure.sh"
+build = "ninja -C $KICAD_BUILD_DIR"
+install = "ninja -C $KICAD_BUILD_DIR install && bash pixi/unregister_bundles.sh"
+# run the binary directly rather than `open`: `open` registers the dev bundle with LaunchServices under
+# KiCad's bundle id, which can make Finder open project files with the dev build instead of the installed KiCad
+# depends on install: the build-tree bundle has no resources (icons etc.), only the staged one is runnable
+# macOS registers a bundle with LaunchServices whenever one of its binaries runs, so unregister again on exit
+app = { cmd = "$KICAD_BUILD_DIR/install/KiCad.app/Contents/MacOS/kicad; bash pixi/unregister_bundles.sh", depends-on = ["install"] }
+clean = "rm -rf $KICAD_BUILD_DIR"

@@ -20,6 +20,7 @@
 #ifndef PLUGIN_COMMON_CHOOSE_PROJECT_H
 #define PLUGIN_COMMON_CHOOSE_PROJECT_H
 
+#include <vector>
 #include <functional>
 #include <map>
 #include <wx/string.h>

@@ -168,6 +168,10 @@ cmake_dependent_option( KICAD_APPLE_MAKE_RELOCATEABLE_BUNDLE
     "On macOS, post-process the build to make it relocateable (default ON)"
     ON "APPLE" OFF )
 
+set( KICAD_APPLE_RUNTIME_DEP_DIRS "" CACHE STRING
+    "On macOS, extra directories searched for @rpath runtime dependencies when bundling (semicolon separated)" )
+mark_as_advanced( KICAD_APPLE_RUNTIME_DEP_DIRS )
+
 # Old versions of CMake and/or protobuf can require the FindProtobuf.cmake,
 # but modern platforms require this to be off
 option( KICAD_USE_CMAKE_FINDPROTOBUF "Use FindProtobuf provided by CMake" OFF )

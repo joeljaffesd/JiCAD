@@ -36,6 +36,9 @@
 #include <cstdlib>
 #else
 #include <locale.h>
+#ifdef __APPLE__
+#include <xlocale.h>
+#endif
 #endif
 
 wxString CreateModelImportTempFileName( const wxString& aPrefix );

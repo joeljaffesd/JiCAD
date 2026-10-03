@@ -26,6 +26,7 @@
 #include <math/box2.h>
 #include <list>
 #include <vector>
+#include <iterator>
 #include <memory>
 #include "eda_angle.h"
 

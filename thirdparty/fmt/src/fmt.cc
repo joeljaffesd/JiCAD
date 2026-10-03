@@ -61,6 +61,7 @@ module;
 #  include <string.h>
 #  include <time.h>
 #endif
+#include <atomic>
 #include <cerrno>
 #include <climits>
 #include <version>

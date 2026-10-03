@@ -21,6 +21,7 @@
 #ifndef LIBRARY_MANAGER_H
 #define LIBRARY_MANAGER_H
 
+#include <atomic>
 #include <future>
 #include <memory>
 #include <mutex>
