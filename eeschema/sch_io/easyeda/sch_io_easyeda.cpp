@@ -89,6 +89,34 @@ static bool FindSchFileInStream( const wxString& aName, wxInputStream& aStream,
 }
 
 
+// The EasyEDA component API wraps the symbol document in "dataStr" and lists the units of a
+// multi-part symbol separately in "subparts"; an exported symbol file is the bare document.
+static EASYEDA::DOCUMENT symbolBodyDoc( const EASYEDA::DOCUMENT& aTopDoc )
+{
+    if( aTopDoc.dataStr && aTopDoc.dataStr->is_object() )
+        return aTopDoc.dataStr->get<EASYEDA::DOCUMENT>();
+
+    return aTopDoc;
+}
+
+
+static std::vector<EASYEDA::DOCUMENT> symbolSubparts( const nlohmann::json& aJs )
+{
+    std::vector<EASYEDA::DOCUMENT> subparts;
+
+    if( !aJs.contains( "subparts" ) || !aJs.at( "subparts" ).is_array() )
+        return subparts;
+
+    for( const nlohmann::json& subpart : aJs.at( "subparts" ) )
+    {
+        if( subpart.contains( "dataStr" ) && subpart.at( "dataStr" ).is_object() )
+            subparts.push_back( subpart.at( "dataStr" ).get<EASYEDA::DOCUMENT>() );
+    }
+
+    return subparts;
+}
+
+
 bool SCH_IO_EASYEDA::CanReadSchematicFile( const wxString& aFileName ) const
 {
     if( !SCH_IO::CanReadSchematicFile( aFileName ) )
@@ -240,6 +268,7 @@ LIB_SYMBOL* loadSymbol( const wxString& aLibraryPath, nlohmann::json aFileData,
         else if( topDocType == EASYEDA::DOC_TYPE::SYMBOL )
         {
             EASYEDA::DOCUMENT_SYM symDoc = js.get<EASYEDA::DOCUMENT_SYM>();
+            EASYEDA::DOCUMENT     bodyDoc = symbolBodyDoc( topDoc );
 
             wxString symbolName = wxS( "Unknown" );
 
@@ -247,8 +276,8 @@ LIB_SYMBOL* loadSymbol( const wxString& aLibraryPath, nlohmann::json aFileData,
 
             if( symDoc.c_para )
                 c_para = symDoc.c_para;
-            else if( topDoc.head.c_para )
-                c_para = topDoc.head.c_para;
+            else if( bodyDoc.head.c_para )
+                c_para = bodyDoc.head.c_para;
 
             if( !c_para )
                 return nullptr;
@@ -265,9 +294,26 @@ LIB_SYMBOL* loadSymbol( const wxString& aLibraryPath, nlohmann::json aFileData,
             if( symbolName != aAliasName )
                 return nullptr;
 
-            VECTOR2D origin( topDoc.head.x, topDoc.head.y );
+            VECTOR2D origin( bodyDoc.head.x, bodyDoc.head.y );
 
-            LIB_SYMBOL* ksymbol = parser.ParseSymbol( origin, *c_para, topDoc.shape );
+            LIB_SYMBOL* ksymbol = parser.ParseSymbol( origin, *c_para, bodyDoc.shape );
+
+            std::vector<EASYEDA::DOCUMENT> subparts = symbolSubparts( js );
+
+            if( !subparts.empty() )
+            {
+                ksymbol->SetUnitCount( (int) subparts.size(), false );
+                ksymbol->LockUnits( true );
+
+                for( size_t i = 0; i < subparts.size(); i++ )
+                {
+                    const EASYEDA::DOCUMENT& subDoc = subparts[i];
+                    VECTOR2D                 subOrigin( subDoc.head.x, subDoc.head.y );
+
+                    parser.ParseSymbolUnit( ksymbol, subOrigin, subDoc.head.c_para.value_or( *c_para ),
+                                            subDoc.shape, (int) i + 1 );
+                }
+            }
 
             // Clear reference numbers
             SCH_FIELD& refField = ksymbol->GetReferenceField();
@@ -399,13 +445,15 @@ void SCH_IO_EASYEDA::EnumerateSymbolLib( wxArrayString&         aSymbolNameList,
 
             wxString packageName = wxS( "Unknown" );
 
+            EASYEDA::DOCUMENT bodyDoc = symbolBodyDoc( topDoc );
+
             if( symDoc.c_para )
             {
                 packageName = get_def( *symDoc.c_para, wxS( "name" ), packageName );
             }
-            else if( topDoc.head.c_para )
+            else if( bodyDoc.head.c_para )
             {
-                packageName = get_def( *topDoc.head.c_para, wxS( "name" ), packageName );
+                packageName = get_def( *bodyDoc.head.c_para, wxS( "name" ), packageName );
             }
 
             aSymbolNameList.Add( packageName );

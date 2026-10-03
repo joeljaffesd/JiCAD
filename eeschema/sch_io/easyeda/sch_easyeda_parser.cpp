@@ -20,6 +20,7 @@
 
 #include <font/font.h>
 #include "sch_easyeda_parser.h"
+#include <set>
 
 #include <sch_io/sch_io_mgr.h>
 #include <schematic.h>
@@ -976,6 +977,27 @@ LIB_SYMBOL* SCH_EASYEDA_PARSER::ParseSymbol( const VECTOR2D&              aOrigi
     ParseSymbolShapes( ksymbol.get(), aParams, aShapes );
 
     return ksymbol.release();
+}
+
+
+void SCH_EASYEDA_PARSER::ParseSymbolUnit( LIB_SYMBOL* aSymbol, const VECTOR2D& aOrigin,
+                                          std::map<wxString, wxString> aParams,
+                                          wxArrayString aShapes, int aUnit )
+{
+    std::set<const SCH_ITEM*> existing;
+
+    for( const SCH_ITEM& item : aSymbol->GetDrawItems() )
+        existing.insert( &item );
+
+    m_relOrigin = aOrigin;
+
+    ParseSymbolShapes( aSymbol, aParams, aShapes );
+
+    for( SCH_ITEM& item : aSymbol->GetDrawItems() )
+    {
+        if( !existing.contains( &item ) )
+            item.SetUnit( aUnit );
+    }
 }
 
 std::pair<LIB_SYMBOL*, bool> SCH_EASYEDA_PARSER::MakePowerSymbol( const wxString& aFlagTypename,

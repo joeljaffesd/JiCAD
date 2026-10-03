@@ -55,6 +55,10 @@ public:
     LIB_SYMBOL* ParseSymbol( const VECTOR2D& aOrigin, std::map<wxString, wxString> aParams,
                              wxArrayString aShapes );
 
+    /// Parse the shapes of one sub-part of a multi-part symbol into unit \a aUnit of \a aSymbol.
+    void ParseSymbolUnit( LIB_SYMBOL* aSymbol, const VECTOR2D& aOrigin,
+                          std::map<wxString, wxString> aParams, wxArrayString aShapes, int aUnit );
+
     void ParseSchematic( SCHEMATIC* aSchematic, SCH_SHEET* aRootSheet, const wxString& aFileName,
                          wxArrayString aShapes );
 
