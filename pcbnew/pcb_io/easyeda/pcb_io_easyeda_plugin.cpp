@@ -33,6 +33,7 @@
 #include <project/net_settings.h>
 #include <reporter.h>
 
+#include <wx/filename.h>
 #include <wx/log.h>
 #include <wx/wfstream.h>
 #include <wx/zipstrm.h>
@@ -95,6 +96,19 @@ static bool FindBoardInStream( const wxString& aName, wxInputStream& aStream, nl
 }
 
 
+// Imported footprints refer to their models as ${KIPRJMOD}/EASYEDA_MODELS/<name>.step; look for
+// the matching <name>.obj mesh in an EASYEDA_MODELS folder beside the file being imported.
+static std::vector<wxString> modelSearchPaths( const wxString& aFileName )
+{
+    wxFileName modelDir( aFileName );
+    modelDir.MakeAbsolute();
+    modelDir.SetFullName( wxEmptyString );
+    modelDir.AppendDir( wxS( "EASYEDA_MODELS" ) );
+
+    return { modelDir.GetPath() };
+}
+
+
 bool PCB_IO_EASYEDA::CanReadBoard( const wxString& aFileName ) const
 {
     if( !PCB_IO::CanReadBoard( aFileName ) )
@@ -151,6 +165,7 @@ void PCB_IO_EASYEDA::loadBoard( const wxString& aFileName, BOARD& aBoard, bool a
     }
 
     PCB_IO_EASYEDA_PARSER parser( nullptr );
+    parser.SetModelSearchPaths( modelSearchPaths( aFileName ) );
 
     try
     {
@@ -374,6 +389,7 @@ std::unique_ptr<FOOTPRINT> PCB_IO_EASYEDA::FootprintLoad( const wxString& aLibra
     FONTCONFIG_REPORTER_SCOPE fontconfigScope( nullptr );
 
     PCB_IO_EASYEDA_PARSER parser( nullptr );
+    parser.SetModelSearchPaths( modelSearchPaths( aLibraryPath ) );
 
     m_loadedFootprints.clear();
 

@@ -44,6 +44,11 @@
 #include <project.h>
 #include <fix_board_shape.h>
 
+#include <fstream>
+#include <sstream>
+
+#include <wx/filename.h>
+
 
 static const wxString DIRECT_MODEL_UUID_KEY = wxS( "JLC_3DModel" );
 static const wxString MODEL_SIZE_KEY = wxS( "JLC_3D_Size" );
@@ -136,6 +141,80 @@ static LIB_ID EasyEdaToKiCadLibID( const wxString& aLibName, const wxString& aLi
     libId.Parse( key, true );
 
     return libId;
+}
+
+
+struct MODEL_BOUNDS
+{
+    VECTOR3D min;
+    VECTOR3D max;
+};
+
+
+/**
+ * Measure a model from its OBJ mesh, in mm, as it sits once rotated by an FP_3DMODEL rotation.
+ *
+ * The 3D viewer applies Rz( -rz ) * Ry( -ry ) * Rx( -rx ), with the angles in degrees.
+ */
+static std::optional<MODEL_BOUNDS> measureObjModel( const wxString& aPath, const VECTOR3D& aRotation )
+{
+    std::ifstream file( aPath.fn_str() );
+
+    if( !file.is_open() )
+        return std::nullopt;
+
+    const double rx = -aRotation.x * M_PI / 180.0;
+    const double ry = -aRotation.y * M_PI / 180.0;
+    const double rz = -aRotation.z * M_PI / 180.0;
+
+    MODEL_BOUNDS bounds;
+    bool         found = false;
+    std::string  line;
+
+    while( std::getline( file, line ) )
+    {
+        if( line.size() < 2 || line[0] != 'v' || line[1] != ' ' )
+            continue;
+
+        std::istringstream in( line.substr( 2 ) );
+        in.imbue( std::locale::classic() );
+
+        double x, y, z;
+
+        if( !( in >> x >> y >> z ) )
+            continue;
+
+        double y1 = y * cos( rx ) - z * sin( rx );
+        double z1 = y * sin( rx ) + z * cos( rx );
+
+        double x2 = x * cos( ry ) + z1 * sin( ry );
+        double z2 = -x * sin( ry ) + z1 * cos( ry );
+
+        double x3 = x2 * cos( rz ) - y1 * sin( rz );
+        double y3 = x2 * sin( rz ) + y1 * cos( rz );
+
+        VECTOR3D pt( x3, y3, z2 );
+
+        if( !found )
+        {
+            bounds.min = bounds.max = pt;
+            found = true;
+        }
+        else
+        {
+            bounds.min.x = std::min( bounds.min.x, pt.x );
+            bounds.min.y = std::min( bounds.min.y, pt.y );
+            bounds.min.z = std::min( bounds.min.z, pt.z );
+            bounds.max.x = std::max( bounds.max.x, pt.x );
+            bounds.max.y = std::max( bounds.max.y, pt.y );
+            bounds.max.z = std::max( bounds.max.z, pt.z );
+        }
+    }
+
+    if( !found )
+        return std::nullopt;
+
+    return bounds;
 }
 
 
@@ -696,6 +775,9 @@ void PCB_IO_EASYEDA_PARSER::ParseToBoardItemContainer(
                         footprint->Add( field );
                     }
 
+                    // Where the centre of the model's bounding box goes, relative to the footprint
+                    VECTOR2D target;
+
                     if( ec_origin )
                     {
                         wxArrayString orParts = wxSplit( *ec_origin, ',', '\0' );
@@ -706,19 +788,60 @@ void PCB_IO_EASYEDA_PARSER::ParseToBoardItemContainer(
                             pos.x = Convert( orParts[0].Trim() );
                             pos.y = Convert( orParts[1].Trim() );
 
-                            VECTOR2D rel = RelPos( pos );
-                            kmodelOffset.x = -pcbIUScale.IUTomm( rel.x );
-                            kmodelOffset.y = -pcbIUScale.IUTomm( rel.y );
-
-                            RotatePoint( &kmodelOffset.x, &kmodelOffset.y,
-                                         -footprint->GetOrientation() );
+                            target = RelPos( pos );
                         }
                     }
 
-                    if( ez )
+                    // c_origin is sometimes stale; the model's 2D outline is drawn where the
+                    // model actually sits, so prefer its centre when the two disagree.
+                    if( nodeData.contains( "childNodes" ) && nodeData.at( "childNodes" ).is_array() )
                     {
-                        kmodelOffset.z = pcbIUScale.IUTomm( ScaleSize( Convert( ez->Trim() ) ) );
+                        BOX2D outline;
+                        bool  haveOutline = false;
+
+                        for( const nlohmann::json& child : nodeData.at( "childNodes" ) )
+                        {
+                            if( !child.contains( "attrs" ) || !child.at( "attrs" ).contains( "points" ) )
+                                continue;
+
+                            wxString      points = child.at( "attrs" ).at( "points" ).get<wxString>();
+                            wxArrayString ptArr = wxSplit( points, ' ', '\0' );
+
+                            for( size_t i = 1; i < ptArr.size(); i += 2 )
+                            {
+                                VECTOR2D pt = RelPos( VECTOR2D( Convert( ptArr[i - 1] ),
+                                                                Convert( ptArr[i] ) ) );
+
+                                if( !haveOutline )
+                                {
+                                    outline = BOX2D( pt, VECTOR2D( 0, 0 ) );
+                                    haveOutline = true;
+                                }
+                                else
+                                {
+                                    outline.Merge( pt );
+                                }
+                            }
+                        }
+
+                        if( haveOutline )
+                        {
+                            VECTOR2D centre = outline.Centre();
+                            double   tolerance = pcbIUScale.mmToIU( 0.1 );
+
+                            if( std::abs( centre.x - target.x ) > tolerance
+                                || std::abs( centre.y - target.y ) > tolerance )
+                            {
+                                target = centre;
+                            }
+                        }
                     }
+
+                    RotatePoint( &target.x, &target.y, -footprint->GetOrientation() );
+
+                    // Model coordinates have Y up
+                    kmodelOffset.x = pcbIUScale.IUTomm( target.x );
+                    kmodelOffset.y = -pcbIUScale.IUTomm( target.y );
 
                     if( ec_rotation )
                     {
@@ -733,6 +856,38 @@ void PCB_IO_EASYEDA_PARSER::ParseToBoardItemContainer(
                         }
                     }
 
+                    wxString modelFileName = EscapeString( modelTitle, ESCAPE_CONTEXT::CTX_FILENAME )
+                                             + wxS( ".step" );
+
+                    // EasyEDA places a model by the bounding box of its OBJ mesh: the centre goes
+                    // on the target point and the bottom at z.  Model files are not authored
+                    // around a common origin, so this needs the mesh; the STEP of the same model
+                    // shares its frame but can carry extra geometry.  Without the mesh, assume the
+                    // model is centred on its origin with its height already built in.
+                    std::optional<MODEL_BOUNDS> bounds;
+
+                    for( const wxString& dir : m_modelSearchPaths )
+                    {
+                        wxFileName meshFile( dir, EscapeString( modelTitle, ESCAPE_CONTEXT::CTX_FILENAME )
+                                                          + wxS( ".obj" ) );
+
+                        if( meshFile.FileExists() )
+                        {
+                            bounds = measureObjModel( meshFile.GetFullPath(), kmodelRotation );
+                            break;
+                        }
+                    }
+
+                    if( bounds )
+                    {
+                        kmodelOffset.x -= ( bounds->min.x + bounds->max.x ) / 2;
+                        kmodelOffset.y -= ( bounds->min.y + bounds->max.y ) / 2;
+                        kmodelOffset.z = -bounds->min.z;
+
+                        if( ez )
+                            kmodelOffset.z += pcbIUScale.IUTomm( ScaleSize( Convert( ez->Trim() ) ) );
+                    }
+
                     if( footprint->GetLayer() == B_Cu )
                     {
                         kmodelRotation.z = 180 - kmodelRotation.z;
@@ -740,9 +895,7 @@ void PCB_IO_EASYEDA_PARSER::ParseToBoardItemContainer(
                     }
 
                     FP_3DMODEL model;
-                    model.m_Filename = kicadModelPrefix
-                                       + EscapeString( modelTitle, ESCAPE_CONTEXT::CTX_FILENAME )
-                                       + wxS( ".step" );
+                    model.m_Filename = kicadModelPrefix + modelFileName;
                     model.m_Offset = kmodelOffset;
                     model.m_Rotation = kmodelRotation;
                     footprint->Models().push_back( model );

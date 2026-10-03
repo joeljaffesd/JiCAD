@@ -65,6 +65,17 @@ public:
                                     std::map<wxString, wxString>                    paramMap,
                                     std::map<wxString, std::unique_ptr<FOOTPRINT>>& aFootprintMap,
                                     wxArrayString                                   shapes );
+
+    /**
+     * Set the directories searched for the OBJ mesh of a footprint's 3D model.
+     *
+     * EasyEDA positions a model by the bounding box of its mesh, which the footprint data does not
+     * carry, so a model can only be placed correctly once its mesh can be measured.
+     */
+    void SetModelSearchPaths( const std::vector<wxString>& aPaths ) { m_modelSearchPaths = aPaths; }
+
+private:
+    std::vector<wxString> m_modelSearchPaths;
 };
 
 
