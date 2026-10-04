@@ -199,6 +199,7 @@ public:
         PCB_DISPLAY_ORIGIN   m_DisplayOrigin;
         bool                 m_DisplayInvertXAxis;
         bool                 m_DisplayInvertYAxis;
+        bool                 m_ShowGridOriginMarker;
 
         bool                 m_ForceShowFieldsWhenFPSelected;
         bool                 m_Live3DRefresh;

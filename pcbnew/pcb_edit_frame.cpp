@@ -2116,6 +2116,16 @@ void PCB_EDIT_FRAME::OnBoardLoaded()
 {
     wxFileName fn( GetBoard()->GetFileName() );
 
+    // Coordinates are shown from the grid origin by default.  A board with nothing on it has no
+    // origin worth keeping, so start its grid at the centre of the page.
+    if( GetBoard()->IsEmpty() && GetGridOrigin() == VECTOR2I( 0, 0 ) )
+    {
+        VECTOR2I centre = GetPageSizeIU() / 2;
+
+        SetGridOrigin( centre );
+        GetCanvas()->GetGAL()->SetGridOrigin( VECTOR2D( centre ) );
+    }
+
     ENUM_MAP<PCB_LAYER_ID>& layerEnum = ENUM_MAP<PCB_LAYER_ID>::Instance();
 
     layerEnum.Choices().Clear();
@@ -2721,6 +2731,9 @@ void PCB_EDIT_FRAME::CommonSettingsChanged( int aFlags )
 {
     PCB_BASE_EDIT_FRAME::CommonSettingsChanged( aFlags );
     m_appearancePanel->CommonSettingsChanged( aFlags );
+
+    if( PCB_CONTROL* control = m_toolManager->GetTool<PCB_CONTROL>() )
+        control->UpdateGridOriginMarker();
 
     PrepareLayerIndicator();
 

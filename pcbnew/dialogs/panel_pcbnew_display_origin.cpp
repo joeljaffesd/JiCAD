@@ -62,6 +62,8 @@ void PANEL_PCBNEW_DISPLAY_ORIGIN::loadSettings( APP_SETTINGS_BASE* aCfg )
         else
             m_drillPlaceOrigin->SetValue( true );
 
+        m_showGridOriginMarker->SetValue( cfg && cfg->m_Display.m_ShowGridOriginMarker );
+
         if( cfg &&cfg->m_Display.m_DisplayInvertXAxis )
             m_xIncreasesLeft->SetValue( true );
         else
@@ -103,6 +105,8 @@ bool PANEL_PCBNEW_DISPLAY_ORIGIN::TransferDataFromWindow()
                 cfg->m_Display.m_DisplayOrigin = PCB_DISPLAY_ORIGIN::PCB_ORIGIN_GRID;
             else
                 cfg->m_Display.m_DisplayOrigin = PCB_DISPLAY_ORIGIN::PCB_ORIGIN_AUX;
+
+            cfg->m_Display.m_ShowGridOriginMarker = m_showGridOriginMarker->GetValue();
 
             cfg->m_Display.m_DisplayInvertXAxis = m_xIncreasesLeft->GetValue();
             cfg->m_Display.m_DisplayInvertYAxis = m_yIncreasesUp->GetValue();

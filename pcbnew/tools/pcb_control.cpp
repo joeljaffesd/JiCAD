@@ -145,7 +145,18 @@ void PCB_CONTROL::Reset( RESET_REASON aReason )
 
         getView()->Remove( m_gridOrigin.get() );
         getView()->Add( m_gridOrigin.get() );
+
+        UpdateGridOriginMarker();
     }
+}
+
+
+void PCB_CONTROL::UpdateGridOriginMarker()
+{
+    if( !m_frame )
+        return;
+
+    getView()->SetVisible( m_gridOrigin.get(), m_frame->GetPcbNewSettings()->m_Display.m_ShowGridOriginMarker );
 }
 
 

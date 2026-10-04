@@ -19,6 +19,7 @@
 #include <wx/settings.h>
 #include <wx/statline.h>
 #include <wx/radiobut.h>
+#include <wx/checkbox.h>
 #include <wx/sizer.h>
 #include <wx/panel.h>
 
@@ -38,6 +39,7 @@ class PANEL_PCBNEW_DISPLAY_ORIGIN_BASE : public RESETTABLE_PANEL
 		wxRadioButton* m_pageOrigin;
 		wxRadioButton* m_drillPlaceOrigin;
 		wxRadioButton* m_gridOrigin;
+		wxCheckBox* m_showGridOriginMarker;
 		wxStaticText* xAxisLabel;
 		wxStaticLine* m_staticline2;
 		wxRadioButton* m_xIncreasesRight;

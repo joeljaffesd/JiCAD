@@ -41,6 +41,9 @@ PANEL_PCBNEW_DISPLAY_ORIGIN_BASE::PANEL_PCBNEW_DISPLAY_ORIGIN_BASE( wxWindow* pa
 	m_gridOrigin = new wxRadioButton( this, wxID_ANY, _("Grid origin"), wxDefaultPosition, wxDefaultSize, 0 );
 	gSizer1->Add( m_gridOrigin, 0, wxRIGHT|wxLEFT, 5 );
 
+	m_showGridOriginMarker = new wxCheckBox( this, wxID_ANY, _("Show grid origin marker"), wxDefaultPosition, wxDefaultSize, 0 );
+	gSizer1->Add( m_showGridOriginMarker, 0, wxRIGHT|wxLEFT, 5 );
+
 
 	m_displayOrigin->Add( gSizer1, 0, wxEXPAND|wxALL, 5 );
 

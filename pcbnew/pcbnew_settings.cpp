@@ -285,13 +285,16 @@ PCBNEW_SETTINGS::PCBNEW_SETTINGS() :
 
     m_params.emplace_back( new PARAM<int>( "pcb_display.origin_mode",
             reinterpret_cast<int*>( &m_Display.m_DisplayOrigin ),
-            PCB_DISPLAY_ORIGIN::PCB_ORIGIN_PAGE ) );
+            PCB_DISPLAY_ORIGIN::PCB_ORIGIN_GRID ) );
 
     m_params.emplace_back( new PARAM<bool>( "pcb_display.origin_invert_x_axis",
             &m_Display.m_DisplayInvertXAxis, false ) );
 
     m_params.emplace_back( new PARAM<bool>( "pcb_display.origin_invert_y_axis",
-            &m_Display.m_DisplayInvertYAxis, false ) );
+            &m_Display.m_DisplayInvertYAxis, true ) );
+
+    m_params.emplace_back( new PARAM<bool>( "pcb_display.show_grid_origin_marker",
+            &m_Display.m_ShowGridOriginMarker, false ) );
 
     m_params.emplace_back( new PARAM<bool>( "pcb_display.force_show_fields_when_fp_selected",
             &m_Display.m_ForceShowFieldsWhenFPSelected, true ) );

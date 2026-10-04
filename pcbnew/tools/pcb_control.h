@@ -52,6 +52,9 @@ public:
     /// @copydoc TOOL_INTERACTIVE::Reset()
     void Reset( RESET_REASON aReason ) override;
 
+    /// Show or hide the grid origin marker as the display preferences ask.
+    void UpdateGridOriginMarker();
+
     int AddLibrary( const TOOL_EVENT& aEvent );
     int Print( const TOOL_EVENT& aEvent );
     int Quit( const TOOL_EVENT& aEvent );
