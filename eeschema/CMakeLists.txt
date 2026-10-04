@@ -212,6 +212,7 @@ set( EESCHEMA_DLGS
     remote_symbol_download_manager.cpp
     remote_symbol_import_job.cpp
     remote_symbol_import_utils.cpp
+    jlc_part_import.cpp
     dialogs/panel_bom_presets.cpp
     dialogs/panel_bom_presets_base.cpp
     dialogs/panel_eeschema_color_settings.cpp

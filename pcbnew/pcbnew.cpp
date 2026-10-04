@@ -81,6 +81,7 @@
 
 #include <footprint_library_query.h>
 #include <invoke_pcb_dialog.h>
+#include <jlc_footprint_import.h>
 #include <wildcards_and_files_ext.h>
 #include "pcbnew_jobs_handler.h"
 #include <diff_merge/diff_doc_kind.h>
@@ -626,6 +627,9 @@ static struct IFACE : public KIFACE_BASE, public UNITS_PROVIDER
 
             return PROJECT_PCB::FootprintLibAdapter( project );
         }
+
+        case KIFACE_IMPORT_EASYEDA_FOOTPRINT:
+            return reinterpret_cast<void*>( &ImportEasyedaFootprint );
 
         case KIFACE_FILTER_FOOTPRINTS:
         {

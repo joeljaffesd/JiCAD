@@ -69,7 +69,13 @@ enum KIFACE_ADDR_ID : int
     /// Function pointer type: void (*)( const wxString& aFootprint, PROJECT* aProject,
     ///                                  std::set<wxString>& aPadNumbers )
     /// Fills aPadNumbers with the numbered pads of aFootprint.
-    KIFACE_FOOTPRINT_PAD_NUMBERS
+    KIFACE_FOOTPRINT_PAD_NUMBERS,
+
+    /// Function pointer type: bool (*)( const wxString& aSourceFile, const wxString& aLibraryPath,
+    ///                                  const wxString& aModelDirUri, wxString& aFootprintName,
+    ///                                  wxString& aError )
+    /// Converts an EasyEDA footprint document into a footprint of the KiCad library aLibraryPath.
+    KIFACE_IMPORT_EASYEDA_FOOTPRINT
 };
 
 #endif // KIFACE_IDS

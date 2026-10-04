@@ -442,6 +442,7 @@ set( PCBNEW_CLASS_SRCS
     edit_track_width.cpp
     files.cpp
     footprint_info_impl.cpp
+    jlc_footprint_import.cpp
     footprint_wizard.cpp
     footprint_editor_utils.cpp
     footprint_editor_settings.cpp

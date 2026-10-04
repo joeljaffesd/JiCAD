@@ -24,6 +24,8 @@
 #include <settings/common_settings.h>
 #include <kiface_base.h>
 #include <sch_base_frame.h>
+#include <jlc_part_import.h>
+#include <confirm.h>
 #include <project_sch.h>
 #include <libraries/symbol_library_adapter.h>
 #include <widgets/lib_tree.h>
@@ -77,7 +79,8 @@ PANEL_SYMBOL_CHOOSER::PANEL_SYMBOL_CHOOSER( SCH_BASE_FRAME* aFrame, wxWindow* aP
         m_show_footprints( aShowFootprints ),
         m_bodyStyleLabel( nullptr ),
         m_bodyStyleChoice( nullptr ),
-        m_selectedBodyStyle( 1 )
+        m_selectedBodyStyle( 1 ),
+        m_jlcImportButton( nullptr )
 {
     m_frame = aFrame;
 
@@ -239,6 +242,14 @@ PANEL_SYMBOL_CHOOSER::PANEL_SYMBOL_CHOOSER( SCH_BASE_FRAME* aFrame, wxWindow* aP
                            LIB_TREE::FLAGS::ALL_WIDGETS, m_details );
 
     treeSizer->Add( m_tree, 1, wxALL | wxEXPAND, 5 );
+
+    if( !m_showPower )
+    {
+        m_jlcImportButton = new wxButton( treePanel, wxID_ANY, wxEmptyString );
+        m_jlcImportButton->Hide();
+        treeSizer->Add( m_jlcImportButton, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 5 );
+    }
+
     treePanel->Layout();
     treeSizer->Fit( treePanel );
 
@@ -276,6 +287,13 @@ PANEL_SYMBOL_CHOOSER::PANEL_SYMBOL_CHOOSER( SCH_BASE_FRAME* aFrame, wxWindow* aP
     if( m_details )
         m_details->Bind( wxEVT_CHAR_HOOK, &PANEL_SYMBOL_CHOOSER::OnDetailsCharHook, this );
 
+    if( m_jlcImportButton )
+    {
+        m_jlcImportButton->Bind( wxEVT_BUTTON, &PANEL_SYMBOL_CHOOSER::onJlcImport, this );
+        m_tree->GetFocusTarget()->Bind( wxEVT_TEXT, &PANEL_SYMBOL_CHOOSER::onSearchText, this );
+        updateJlcImportButton();
+    }
+
     // Open the user's previously opened libraries on timer expiration.
     // This is done on a timer because we need a gross hack to keep GTK from garbling the
     // display. Must be longer than the search debounce timer.
@@ -307,6 +325,9 @@ PANEL_SYMBOL_CHOOSER::~PANEL_SYMBOL_CHOOSER()
 
     if( m_details )
         m_details->Unbind( wxEVT_CHAR_HOOK, &PANEL_SYMBOL_CHOOSER::OnDetailsCharHook, this );
+
+    if( m_jlcImportButton )
+        m_tree->GetFocusTarget()->Unbind( wxEVT_TEXT, &PANEL_SYMBOL_CHOOSER::onSearchText, this );
 
     if( EESCHEMA_SETTINGS* cfg = dynamic_cast<EESCHEMA_SETTINGS*>( Kiface().KifaceSettings() ) )
     {
@@ -518,8 +539,78 @@ void PANEL_SYMBOL_CHOOSER::SetPreselect( const LIB_ID& aPreselect )
 }
 
 
+void PANEL_SYMBOL_CHOOSER::onSearchText( wxCommandEvent& aEvent )
+{
+    updateJlcImportButton();
+    aEvent.Skip();
+}
+
+
+void PANEL_SYMBOL_CHOOSER::updateJlcImportButton()
+{
+    wxString partNumber = JlcPartNumberFromText( m_tree->GetSearchString() );
+
+    if( partNumber == m_jlcPartNumber && m_jlcImportButton->IsShown() == !partNumber.IsEmpty() )
+        return;
+
+    m_jlcPartNumber = partNumber;
+
+    if( !partNumber.IsEmpty() )
+        m_jlcImportButton->SetLabel( wxString::Format( _( "Import %s from JLC..." ), partNumber ) );
+
+    m_jlcImportButton->Show( !partNumber.IsEmpty() );
+    m_jlcImportButton->GetParent()->Layout();
+}
+
+
+void PANEL_SYMBOL_CHOOSER::onJlcImport( wxCommandEvent& aEvent )
+{
+    if( m_jlcPartNumber.IsEmpty() )
+        return;
+
+    wxString label = m_jlcImportButton->GetLabel();
+    wxString error;
+    LIB_ID   imported;
+    bool     ok = false;
+
+    m_jlcImportButton->SetLabel( wxString::Format( _( "Importing %s..." ), m_jlcPartNumber ) );
+    m_jlcImportButton->Disable();
+    m_jlcImportButton->Update();
+
+    {
+        wxBusyCursor busy;
+        ok = ImportJlcPart( m_frame, m_jlcPartNumber, imported, error );
+    }
+
+    m_jlcImportButton->SetLabel( label );
+    m_jlcImportButton->Enable();
+
+    if( !ok )
+    {
+        DisplayErrorMessage( this, wxString::Format( _( "Could not import %s from JLC." ), m_jlcPartNumber ),
+                             error );
+        return;
+    }
+
+    // The tree was built before the part existed; hand the new symbol straight back for placement
+    m_jlcImportedId = imported;
+    m_acceptHandler();
+}
+
+
 LIB_ID PANEL_SYMBOL_CHOOSER::GetSelectedLibId( int* aUnit, int* aBodyStyle ) const
 {
+    if( m_jlcImportedId.IsValid() )
+    {
+        if( aUnit )
+            *aUnit = 1;
+
+        if( aBodyStyle )
+            *aBodyStyle = 1;
+
+        return m_jlcImportedId;
+    }
+
     LIB_ID id = m_tree->GetSelectedLibId( aUnit );
 
     if( aBodyStyle )

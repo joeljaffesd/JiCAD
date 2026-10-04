@@ -143,6 +143,12 @@ protected:
      */
     void onSymbolChosen( wxCommandEvent& aEvent );
 
+    void onSearchText( wxCommandEvent& aEvent );
+    void onJlcImport( wxCommandEvent& aEvent );
+
+    /// Offer to import the part when the search text is an LCSC part number.
+    void updateJlcImportButton();
+
     /**
      * Look up the footprint for a given symbol specified in the #LIB_ID and display it.
      */
@@ -195,6 +201,10 @@ protected:
     std::vector<std::pair<FIELD_T, wxString>>  m_field_edits;
 
     SYMBOL_COMPAT_FUNC  m_compatCallback;
+
+    wxButton*           m_jlcImportButton;
+    wxString            m_jlcPartNumber;
+    LIB_ID              m_jlcImportedId;     ///< Set once a part was imported; it becomes the selection
 };
 
 #endif /* PANEL_SYMBOL_CHOOSER_H */
