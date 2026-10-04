@@ -33,6 +33,7 @@
 const int colorsSchemaVersion = 6;
 const wxString COLOR_SETTINGS::COLOR_BUILTIN_DEFAULT = "_builtin_default";
 const wxString COLOR_SETTINGS::COLOR_BUILTIN_CLASSIC = "_builtin_classic";
+const wxString COLOR_SETTINGS::COLOR_BUILTIN_EASYEDA_PRO = "_builtin_easyeda_pro";
 
 
 COLOR_SETTINGS::COLOR_SETTINGS( const wxString& aFilename, bool aAbsolutePath ) :
@@ -491,10 +492,24 @@ std::vector<COLOR_SETTINGS*> COLOR_SETTINGS::CreateBuiltinColorSettings()
     for( const std::pair<int, COLOR4D> entry : s_classicTheme )
         classicTheme->m_colors[entry.first] = entry.second;
 
+    COLOR_SETTINGS* easyedaProTheme = new COLOR_SETTINGS( COLOR_BUILTIN_EASYEDA_PRO );
+    easyedaProTheme->m_writeFile = false;
+    easyedaProTheme->Load();   // Start from the default colors
+
+    for( PARAM_BASE* param : easyedaProTheme->m_params )
+        delete param;
+
+    easyedaProTheme->m_params.clear(); // Disable load/store
+    easyedaProTheme->SetName( _( "EasyEDA Pro" ) );
+
+    for( const std::pair<int, COLOR4D> entry : s_easyedaProTheme )
+        easyedaProTheme->m_colors[entry.first] = entry.second;
+
     std::vector<COLOR_SETTINGS*> ret;
 
     ret.push_back( defaultTheme );
     ret.push_back( classicTheme );
+    ret.push_back( easyedaProTheme );
 
     return ret;
 }

@@ -323,6 +323,97 @@ static const std::vector<COLOR4D> s_userColors =
     { CSS_COLOR( 194, 194, 194, 1 ) },
 };
 
+// EasyEDA Pro's colors, as overrides of the default theme.  PCB layers are matched the way the
+// EasyEDA Pro importer maps them, so imported boards and parts keep their colors.
+static const std::map<int, COLOR4D> s_easyedaProTheme =
+        {
+            { LAYER_PCB_BACKGROUND,  CSS_COLOR( 0,   0,   0,   1 ) },
+            { LAYER_PAD_PLATEDHOLES, CSS_COLOR( 34,  34,  34,  1 ) },
+            { LAYER_NON_PLATEDHOLES, CSS_COLOR( 34,  34,  34,  1 ) },
+            { LAYER_RATSNEST,        CSS_COLOR( 100, 100, 255, 1 ) },
+            { LAYER_VIA_HOLES,       CSS_COLOR( 34,  34,  34,  1 ) },
+            { LAYER_VIA_HOLEWALLS,   CSS_COLOR( 192, 192, 192, 1 ) },
+            { F_Cu,                  CSS_COLOR( 255, 0,   0,   1 ) },
+            { In1_Cu,                CSS_COLOR( 153, 153, 102, 1 ) },
+            { In2_Cu,                CSS_COLOR( 0,   128, 0,   1 ) },
+            { In3_Cu,                CSS_COLOR( 0,   255, 0,   1 ) },
+            { In4_Cu,                CSS_COLOR( 188, 142, 0,   1 ) },
+            { In5_Cu,                CSS_COLOR( 112, 219, 250, 1 ) },
+            { In6_Cu,                CSS_COLOR( 0,   204, 102, 1 ) },
+            { In7_Cu,                CSS_COLOR( 153, 102, 255, 1 ) },
+            { In8_Cu,                CSS_COLOR( 128, 0,   128, 1 ) },
+            { In9_Cu,                CSS_COLOR( 0,   128, 128, 1 ) },
+            { In10_Cu,               CSS_COLOR( 21,  147, 95,  1 ) },
+            { In11_Cu,               CSS_COLOR( 0,   0,   128, 1 ) },
+            { In12_Cu,               CSS_COLOR( 0,   180, 0,   1 ) },
+            { In13_Cu,               CSS_COLOR( 46,  71,  86,  1 ) },
+            { In14_Cu,               CSS_COLOR( 153, 132, 47,  1 ) },
+            { In15_Cu,               CSS_COLOR( 255, 255, 170, 1 ) },
+            { In16_Cu,               CSS_COLOR( 153, 132, 47,  1 ) },
+            { In17_Cu,               CSS_COLOR( 46,  71,  86,  1 ) },
+            { In18_Cu,               CSS_COLOR( 53,  53,  255, 1 ) },
+            { In19_Cu,               CSS_COLOR( 128, 0,   188, 1 ) },
+            { In20_Cu,               CSS_COLOR( 67,  174, 95,  1 ) },
+            { In21_Cu,               CSS_COLOR( 195, 236, 206, 1 ) },
+            { In22_Cu,               CSS_COLOR( 114, 137, 120, 1 ) },
+            { In23_Cu,               CSS_COLOR( 57,  80,  63,  1 ) },
+            { In24_Cu,               CSS_COLOR( 12,  113, 93,  1 ) },
+            { In25_Cu,               CSS_COLOR( 90,  138, 128, 1 ) },
+            { In26_Cu,               CSS_COLOR( 43,  147, 126, 1 ) },
+            { In27_Cu,               CSS_COLOR( 35,  153, 157, 1 ) },
+            { In28_Cu,               CSS_COLOR( 69,  180, 227, 1 ) },
+            { In29_Cu,               CSS_COLOR( 33,  93,  161, 1 ) },
+            { In30_Cu,               CSS_COLOR( 69,  100, 215, 1 ) },
+            { B_Cu,                  CSS_COLOR( 0,   0,   255, 1 ) },
+            { B_Paste,               CSS_COLOR( 128, 0,   0,   1 ) },
+            { F_Paste,               CSS_COLOR( 128, 128, 128, 1 ) },
+            { B_SilkS,               CSS_COLOR( 102, 204, 51,  1 ) },
+            { F_SilkS,               CSS_COLOR( 255, 204, 0,   1 ) },
+            { B_Mask,                CSS_COLOR( 170, 0,   255, 0.7 ) },
+            { F_Mask,                CSS_COLOR( 128, 0,   128, 0.7 ) },
+            { Dwgs_User,             CSS_COLOR( 255, 255, 255, 1 ) },
+            { Eco2_User,             CSS_COLOR( 0,   204, 102, 1 ) },
+            { Edge_Cuts,             CSS_COLOR( 255, 0,   255, 1 ) },
+            { B_Fab,                 CSS_COLOR( 85,  85,  255, 1 ) },
+            { F_Fab,                 CSS_COLOR( 51,  204, 153, 1 ) },
+            { User_4,                CSS_COLOR( 102, 255, 153, 1 ) },
+            { User_5,                CSS_COLOR( 255, 204, 255, 1 ) },
+            { User_6,                CSS_COLOR( 0,   102, 204, 1 ) },
+            { User_7,                CSS_COLOR( 0,   128, 128, 1 ) },
+
+            // Schematic: the "EasyEDA" primitive style
+            { LAYER_SCHEMATIC_BACKGROUND,   CSS_COLOR( 255, 252, 248, 1 ) },    // Canvas
+            { LAYER_SCHEMATIC_GRID,         CSS_COLOR( 240, 240, 235, 1 ) },    // Grid
+            { LAYER_SELECTION_SHADOWS,      CSS_COLOR( 255, 0,   0,   0.8 ) },  // Selection
+            { LAYER_HOVERED,                CSS_COLOR( 255, 153, 51,  1 ) },    // Hover Highlight
+            { LAYER_BRIGHTENED,             CSS_COLOR( 255, 0,   255, 1 ) },    // Tips
+            { LAYER_WIRE,                   CSS_COLOR( 0,   136, 0,   1 ) },    // Wire
+            { LAYER_BUS,                    CSS_COLOR( 0,   136, 0,   1 ) },    // Bus
+            { LAYER_JUNCTION,               CSS_COLOR( 204, 0,   0,   1 ) },    // Junction
+            { LAYER_BUS_JUNCTION,           CSS_COLOR( 204, 0,   0,   1 ) },    // Junction
+            { LAYER_NOCONNECT,              CSS_COLOR( 51,  204, 51,  1 ) },    // No Connect Flag
+            { LAYER_LOCLABEL,               CSS_COLOR( 0,   0,   255, 1 ) },    // Net Name/Netflag
+            { LAYER_GLOBLABEL,              CSS_COLOR( 0,   0,   255, 1 ) },    // Net Name/Netflag
+            { LAYER_HIERLABEL,              CSS_COLOR( 0,   0,   255, 1 ) },    // Net Name/Netflag
+            { LAYER_NETCLASS_REFS,          CSS_COLOR( 0,   0,   128, 1 ) },    // Net Property
+            { LAYER_DEVICE,                 CSS_COLOR( 160, 0,   0,   1 ) },    // Symbol
+            { LAYER_DEVICE_BACKGROUND,      CSS_COLOR( 255, 252, 248, 1 ) },    // Symbol fill: none
+            { LAYER_PIN,                    CSS_COLOR( 136, 0,   0,   1 ) },    // Pin
+            { LAYER_PINNAM,                 CSS_COLOR( 0,   0,   0,   1 ) },    // Pin Name
+            { LAYER_PINNUM,                 CSS_COLOR( 0,   0,   0,   1 ) },    // Pin Property
+            { LAYER_REFERENCEPART,          CSS_COLOR( 0,   0,   128, 1 ) },    // Symbol Property
+            { LAYER_VALUEPART,              CSS_COLOR( 0,   0,   128, 1 ) },    // Symbol Property
+            { LAYER_FIELDS,                 CSS_COLOR( 0,   0,   128, 1 ) },    // Symbol Property
+            { LAYER_SHEET,                  CSS_COLOR( 160, 0,   0,   1 ) },    // Reuse Block
+            { LAYER_SHEETNAME,              CSS_COLOR( 0,   0,   255, 1 ) },    // Block Symbol Name
+            { LAYER_SHEETFILENAME,          CSS_COLOR( 0,   0,   128, 1 ) },    // Block Symbol Property
+            { LAYER_SHEETFIELDS,            CSS_COLOR( 0,   0,   128, 1 ) },    // Block Symbol Property
+            { LAYER_SHEETLABEL,             CSS_COLOR( 0,   0,   255, 1 ) },    // Net Name/Netflag
+            { LAYER_NOTES,                  CSS_COLOR( 0,   0,   0,   1 ) },    // Line, Text
+            { LAYER_DNP_MARKER,             CSS_COLOR( 153, 153, 153, 0.85 ) }, // Not add into BOM
+            { LAYER_SCHEMATIC_DRAWINGSHEET, CSS_COLOR( 160, 0,   0,   1 ) }     // Table
+        };
+
 static const std::map<int, COLOR4D> s_classicTheme =
         {
             { LAYER_SCHEMATIC_ANCHOR,       CSS_COLOR( 0, 0, 255, 1 ) },

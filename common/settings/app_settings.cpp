@@ -295,7 +295,7 @@ APP_SETTINGS_BASE::APP_SETTINGS_BASE( const std::string& aFilename, int aSchemaV
             nlohmann::json::array() ) );
 
     m_params.emplace_back( new PARAM<wxString>( "appearance.color_theme",
-            &m_ColorTheme, COLOR_SETTINGS::COLOR_BUILTIN_DEFAULT ) );
+            &m_ColorTheme, COLOR_SETTINGS::COLOR_BUILTIN_EASYEDA_PRO ) );
 
     m_params.emplace_back( new PARAM<bool>( "appearance.custom_toolbars",
             &m_CustomToolbars, false ) );
