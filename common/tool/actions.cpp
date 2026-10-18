@@ -1182,7 +1182,6 @@ TOOL_ACTION ACTIONS::togglePolarCoords( TOOL_ACTION_ARGS()
 TOOL_ACTION ACTIONS::resetLocalCoords( TOOL_ACTION_ARGS()
         .Name( "common.Control.resetLocalCoords" )
         .Scope( AS_GLOBAL )
-        .DefaultHotkey( ' ' )
         .LegacyHotkeyName( "Reset Local Coordinates" )
         .FriendlyName( _( "Reset Local Coordinates" ) ) );
 
