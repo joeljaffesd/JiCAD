@@ -1353,8 +1353,12 @@ HANDLER_RESULT<ItemRequestStatus> API_HANDLER_SCH::handleCreateUpdateItemsIntern
                 {
                     wxFileName fileName( ExpandTextVars( rawFilename, &schematic()->Project(), INTERNAL ) );
 
+                    // Relative sheet filenames resolve against the parent sheet's directory (SCH_SCREEN
+                    // file names are always absolute), as in SCH_EDIT_FRAME::ChangeSheetFileName.
+                    wxFileName parentFileName( targetPath.LastScreen()->GetFileName() );
+
                     if( !fileName.Normalize( FN_NORMALIZE_FLAGS | wxPATH_NORM_ENV_VARS,
-                                             targetPath.LastScreen()->GetFileName() ) )
+                                             parentFileName.GetPath() ) )
                     {
                         status.set_code( ItemStatusCode::ISC_INVALID_DATA );
                         status.set_error_message( fmt::format( "could not resolve sheet filename '{}' for new sheet",
