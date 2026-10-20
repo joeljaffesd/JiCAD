@@ -313,6 +313,21 @@ void PCAD_FOOTPRINT::DoLayerContentsObjects( XNODE* aNode, PCAD_FOOTPRINT* aFoot
                                      aActualConversion );
                 }
             }
+
+            // a visible attribute placed on the board itself shows its value as plain text;
+            // the loader joins the attribute's strings, so the name reads "<attr> <value>"
+            if( !aFootprint
+                && FindNodeGetContent( lNode, wxT( "isVisible" ) ).IsSameAs( wxT( "True" ), false ) )
+            {
+                text = new PCAD_TEXT( m_callbacks, m_board );
+                text->Parse( lNode, PCadLayer, aDefaultMeasurementUnit, aActualConversion );
+                text->m_Name.text = text->m_Name.text.AfterFirst( ' ' );
+
+                if( text->m_Name.text.IsEmpty() )
+                    delete text;
+                else
+                    aList->Add( text );
+            }
         }
 
         // added  as Sergeys request 02/2008
@@ -604,7 +619,9 @@ void PCAD_FOOTPRINT::AddToBoard( FOOTPRINT* aFootprint )
     else
         SetTextSizeFromStrokeFontHeight( ref_text, m_Name.textHeight );
 
-    r = m_Name.textRotation - m_Rotation;
+    // P-CAD stores a placed pattern's attribute rotation in board terms, and footprint text
+    // angles are absolute too (the old FP_TEXT angle was footprint-relative)
+    r = m_Name.textRotation;
     ref_text->SetTextAngle( r );
     ref_text->SetKeepUpright( false );
 
@@ -629,7 +646,7 @@ void PCAD_FOOTPRINT::AddToBoard( FOOTPRINT* aFootprint )
     else
         SetTextSizeFromStrokeFontHeight( val_text, m_Value.textHeight );
 
-    r = m_Value.textRotation - m_Rotation;
+    r = m_Value.textRotation;
     val_text->SetTextAngle( r );
     val_text->SetKeepUpright( false );
 

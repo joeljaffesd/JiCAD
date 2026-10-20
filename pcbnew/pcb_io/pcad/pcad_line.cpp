@@ -127,8 +127,16 @@ void PCAD_LINE::AddToBoard( FOOTPRINT* aFootprint )
     }
     else
     {
-        PCB_SHAPE* segment = new PCB_SHAPE( m_board, SHAPE_T::SEGMENT );
-        m_board->Add( segment, ADD_MODE::APPEND );
+        // footprint outlines belong to their footprint (like arcs and polygons), so they
+        // move with it and survive a save to a library
+        PCB_SHAPE* segment = new PCB_SHAPE( aFootprint ? static_cast<BOARD_ITEM*>( aFootprint )
+                                                       : m_board,
+                                            SHAPE_T::SEGMENT );
+
+        if( aFootprint )
+            aFootprint->Add( segment );
+        else
+            m_board->Add( segment, ADD_MODE::APPEND );
 
         segment->SetLayer( m_KiCadLayer );
         segment->SetStart( VECTOR2I( m_PositionX, m_PositionY ) );

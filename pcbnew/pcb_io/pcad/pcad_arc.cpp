@@ -173,8 +173,18 @@ void PCAD_ARC::AddToBoard( FOOTPRINT* aFootprint )
     PCB_SHAPE* arc = new PCB_SHAPE( aFootprint, IsCircle() ? SHAPE_T::CIRCLE : SHAPE_T::ARC );
 
     arc->SetCenter( VECTOR2I( m_PositionX, m_PositionY ) );
-    arc->SetStart( VECTOR2I( m_StartX, m_StartY ) );
-    arc->SetArcAngleAndEnd( -m_Angle, true );
+
+    // a circle keeps its centre in the start point and a point on the rim in the end point,
+    // so SetStart() would move the centre onto the rim and collapse the radius to zero
+    if( IsCircle() )
+    {
+        arc->SetEnd( VECTOR2I( m_StartX, m_StartY ) );
+    }
+    else
+    {
+        arc->SetStart( VECTOR2I( m_StartX, m_StartY ) );
+        arc->SetArcAngleAndEnd( -m_Angle, true );
+    }
 
     arc->SetStroke( STROKE_PARAMS( m_Width, LINE_STYLE::SOLID ) );
     arc->SetLayer( m_KiCadLayer );

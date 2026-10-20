@@ -261,7 +261,10 @@ void PCAD_PCB::SetTextProperty( XNODE* aNode, TTEXTVALUE* aTextValue, const wxSt
         propValue.Trim( false );
         propValue.Trim( true );
 
-        if( propValue == n || propValue == nnew )
+        // the loader joins an attribute's strings ("Value 47U"), and the value text is not
+        // known yet when this runs for Value, so match on the attribute keyword too
+        if( propValue == n || propValue == nnew
+            || ( !nnew.IsEmpty() && propValue.BeforeFirst( ' ' ) == nnew ) )
             break;
 
         tNode = tNode->GetNext();

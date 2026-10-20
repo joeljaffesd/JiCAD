@@ -157,7 +157,9 @@ void PCAD_POLYGON::AddToBoard( FOOTPRINT* aFootprint )
             PCB_SHAPE* dwg = new PCB_SHAPE( aFootprint, SHAPE_T::POLY );
             aFootprint->Add( dwg );
 
+            // P-CAD polygons are always solid (outlines are drawn with lines)
             dwg->SetStroke( STROKE_PARAMS( 0 ) );
+            dwg->SetFilled( true );
             dwg->SetLayer( m_KiCadLayer );
 
             auto outline = new std::vector<VECTOR2I>;
