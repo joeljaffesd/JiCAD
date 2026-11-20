@@ -197,6 +197,13 @@ public:
     void SetStart( const VECTOR2I& aStart ) override;
     void SetEnd( const VECTOR2I& aEnd ) override;
 
+    /**
+     * Set the arc/circle center and refresh the footprint-local (lib) coordinates.  Importers
+     * commonly call SetStart/SetEnd and then SetCenter; without the resync an arc's saved mid
+     * point is the one computed against the previous center.
+     */
+    void SetCenter( const VECTOR2I& aCenter ) override;
+
     // Stroke width is stored in lib units. Scale-aware accessors apply the
     // parent footprint scale on read / strip it on write so callers see the
     // runtime width as before.

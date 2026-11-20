@@ -959,6 +959,13 @@ void PCB_SHAPE::SetEnd( const VECTOR2I& aEnd )
 }
 
 
+void PCB_SHAPE::SetCenter( const VECTOR2I& aCenter )
+{
+    EDA_SHAPE::SetCenter( aCenter );
+    syncLibCoords();
+}
+
+
 void PCB_SHAPE::OnFootprintRescaled( double aRatioX, double aRatioY, double aLinearFactor, const VECTOR2I& aAnchor,
                                      const EDA_ANGLE& aParentRotate )
 {
