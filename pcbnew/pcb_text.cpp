@@ -157,6 +157,13 @@ bool PCB_TEXT::Deserialize( const kiapi::board::types::BoardText& boardText )
 
     const types::Text& text = boardText.text();
 
+    // EDA_TEXT::Deserialize only sets m_attributes; the angle actually drawn and saved comes from
+    // m_libTextAngle (GetTextAngle()).  Route the absolute API angle through SetTextAngle() so the
+    // lib-frame angle follows; otherwise every text updated over the API loses its rotation.
+    // Footprint children are created with their parent and its orientation already set.
+    if( text.has_attributes() )
+        SetTextAngle( EDA_ANGLE( text.attributes().angle().value_degrees(), DEGREES_T ) );
+
     SetPosition( UnpackVector2( text.position() ) );
     kiapi::common::UnpackCustomProperties( boardText.custom_properties(), *this );
 
