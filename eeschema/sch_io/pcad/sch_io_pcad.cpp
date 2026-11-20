@@ -20,6 +20,7 @@
  * with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <algorithm>
 #include <sch_io/pcad/sch_io_pcad.h>
 #include <sch_io/pcad/pcad_sch_parser.h>
 
@@ -60,6 +61,13 @@ struct LIB_SYMBOL_STORE
 {
     std::map<wxString, std::unique_ptr<LIB_SYMBOL>> byCompDef;
     std::map<wxString, std::unique_ptr<LIB_SYMBOL>> bySymbolDef;
+
+    // Components whose placed instances use a different numbered copy of the attached symbol
+    // (e.g. APIVR_2 where the compDef's "APIVR" resolves to APIVR_1) with different geometry.
+    // Keyed by refDes; the symbols are owned by `variants` and shared between refDes that use
+    // the same compDef/override combination.
+    std::map<wxString, const LIB_SYMBOL*>   byRefDes;
+    std::vector<std::unique_ptr<LIB_SYMBOL>> variants;
 };
 
 
@@ -683,13 +691,19 @@ void addSymbolDefToLibSymbol( LIB_SYMBOL* aSymbol, const PCAD_SCH::SYMBOL_DEF& a
     // Only the first unit positions the shared fields.
     if( aUnit == 1 )
     {
+        // A symbolDef often carries both (attr "Value" ...) with a placement and an unplaced,
+        // hidden (attr "Type" ...); Type must not override Value (it put the value at the
+        // symbol origin in the default style). Use Type only when there is no Value attr.
+        const bool hasValueAttr = std::any_of( aDef.attrs.begin(), aDef.attrs.end(),
+                                               []( const ATTR& a ) { return a.name == wxT( "Value" ); } );
+
         for( const ATTR& attr : aDef.attrs )
         {
             SCH_FIELD* field = nullptr;
 
             if( attr.name == wxT( "RefDes" ) )
                 field = &aSymbol->GetReferenceField();
-            else if( attr.name == wxT( "Type" ) || attr.name == wxT( "Value" ) )
+            else if( attr.name == wxT( "Value" ) || ( attr.name == wxT( "Type" ) && !hasValueAttr ) )
                 field = &aSymbol->GetValueField();
 
             if( field )
@@ -825,6 +839,81 @@ SYMBOL_ORIENTATION_T symOrientation( double aRotDeg )
 }
 
 
+const PCAD_SCH::COMP_DEF* resolveCompDef( const PCAD_SCH::SCHEMATIC& aPcad, const wxString& aRefDes )
+{
+    auto ciIt = aPcad.compInstsByRef.find( aRefDes );
+
+    if( ciIt == aPcad.compInstsByRef.end() )
+        return nullptr;
+
+    wxString compRef = ciIt->second->compRef;
+    auto     aliasIt = aPcad.compAliases.find( compRef );
+
+    if( aliasIt != aPcad.compAliases.end() )
+        compRef = aliasIt->second;
+
+    auto cdIt = aPcad.compDefsByName.find( compRef );
+
+    return cdIt == aPcad.compDefsByName.end() ? nullptr : cdIt->second;
+}
+
+
+// True when two symbolDefs draw the same pins and body; numbered copies of one library symbol
+// (FOO_1, FOO_2) are usually identical, and then the shared compDef symbol is kept.
+bool sameSymbolGeometry( const PCAD_SCH::SYMBOL_DEF& aA, const PCAD_SCH::SYMBOL_DEF& aB )
+{
+    if( aA.pins.size() != aB.pins.size() || aA.lines.size() != aB.lines.size()
+        || aA.arcs.size() != aB.arcs.size() || aA.polys.size() != aB.polys.size() )
+    {
+        return false;
+    }
+
+    for( size_t i = 0; i < aA.pins.size(); i++ )
+    {
+        const PCAD_SCH::PIN& a = aA.pins[i];
+        const PCAD_SCH::PIN* b = nullptr;
+
+        for( const PCAD_SCH::PIN& candidate : aB.pins )
+        {
+            if( candidate.pinNum == a.pinNum )
+                b = &candidate;
+        }
+
+        if( !b || a.x != b->x || a.y != b->y || a.rotation != b->rotation
+            || a.pinLength != b->pinLength )
+        {
+            return false;
+        }
+    }
+
+    for( size_t i = 0; i < aA.lines.size(); i++ )
+    {
+        if( aA.lines[i].pts != aB.lines[i].pts )
+            return false;
+    }
+
+    for( size_t i = 0; i < aA.arcs.size(); i++ )
+    {
+        const PCAD_SCH::ARC& a = aA.arcs[i];
+        const PCAD_SCH::ARC& b = aB.arcs[i];
+
+        if( a.x != b.x || a.y != b.y || a.radius != b.radius || a.startAngle != b.startAngle
+            || a.sweepAngle != b.sweepAngle )
+        {
+            return false;
+        }
+    }
+
+    for( size_t i = 0; i < aA.polys.size(); i++ )
+    {
+        if( aA.polys[i].pts != aB.polys[i].pts )
+            return false;
+    }
+
+    return true;
+}
+
+
 LIB_SYMBOL_STORE buildLibSymbols( const PCAD_SCH::SCHEMATIC& aPcad, const wxString& aLibName )
 {
     LIB_SYMBOL_STORE   store;
@@ -845,6 +934,62 @@ LIB_SYMBOL_STORE buildLibSymbols( const PCAD_SCH::SCHEMATIC& aPcad, const wxStri
         wxString name = uniqueSymbolName( libSymbolName( cd ), usedNames );
 
         store.byCompDef[cd.name].reset( buildLibSymbolFromCompDef( cd, aPcad, aLibName, name ) );
+    }
+
+    // A compDef attaches a symbol by base name ("APIVR"), which resolves to the first numbered
+    // copy (APIVR_1), but each placed instance names the copy it actually uses (symbolRef). When
+    // that copy is drawn differently - e.g. a pin 100 mil shorter - building from the default
+    // copy moves the pin hotspot off the wires and drops the connection. Build a per-component
+    // variant from the copies its instances use; all units of one refDes share it.
+    std::map<wxString, std::map<int, const PCAD_SCH::SYMBOL_DEF*>> overrides;
+
+    for( const PCAD_SCH::SHEET& sheet : aPcad.sheets )
+    {
+        for( const PCAD_SCH::SYMBOL_INST& inst : sheet.symbols )
+        {
+            const PCAD_SCH::COMP_DEF* cd = resolveCompDef( aPcad, inst.refDesRef );
+
+            if( !cd || inst.partNum < 1
+                || inst.partNum >= static_cast<int>( cd->attachedSymbols.size() ) )
+            {
+                continue;
+            }
+
+            const PCAD_SCH::SYMBOL_DEF* def = findSymbolDef( aPcad, cd->attachedSymbols[inst.partNum] );
+            const PCAD_SCH::SYMBOL_DEF* used = findSymbolDef( aPcad, inst.symbolRef );
+
+            if( def && used && def != used && !sameSymbolGeometry( *def, *used ) )
+                overrides[inst.refDesRef][inst.partNum] = used;
+        }
+    }
+
+    std::map<wxString, const LIB_SYMBOL*> variantByKey;
+
+    for( const auto& [refDes, units] : overrides )
+    {
+        const PCAD_SCH::COMP_DEF* cd = resolveCompDef( aPcad, refDes );
+        wxString                  key = cd->name;
+        wxString                  suffix;
+        PCAD_SCH::COMP_DEF        variant = *cd;
+
+        for( const auto& [unit, symDef] : units )
+        {
+            key << wxT( "|" ) << unit << wxT( ":" ) << symDef->name;
+            suffix << wxT( "_" ) << symbolDefDisplayName( *symDef );
+            variant.attachedSymbols[unit] = symDef->name;   // primary names win in the lookup
+        }
+
+        auto it = variantByKey.find( key );
+
+        if( it == variantByKey.end() )
+        {
+            wxString name = uniqueSymbolName( libSymbolName( *cd ) + suffix, usedNames );
+
+            store.variants.emplace_back( buildLibSymbolFromCompDef( variant, aPcad, aLibName, name ) );
+            it = variantByKey.emplace( key, store.variants.back().get() ).first;
+        }
+
+        store.byRefDes[refDes] = it->second;
     }
 
     // symbolDefs never referenced by a compDef still need a library symbol so
@@ -1228,10 +1373,19 @@ void SCH_IO_PCAD::populateScreen( SCH_SCREEN* aScreen, const PCAD_SCH::SHEET& aS
 
         if( compDef )
         {
-            auto libIt = aLibSymbols.byCompDef.find( compDef->name );
+            auto varIt = aLibSymbols.byRefDes.find( inst.refDesRef );
 
-            if( libIt != aLibSymbols.byCompDef.end() )
-                libSym = libIt->second.get();
+            if( varIt != aLibSymbols.byRefDes.end() )
+            {
+                libSym = varIt->second;
+            }
+            else
+            {
+                auto libIt = aLibSymbols.byCompDef.find( compDef->name );
+
+                if( libIt != aLibSymbols.byCompDef.end() )
+                    libSym = libIt->second.get();
+            }
         }
 
         if( !libSym )
@@ -1277,18 +1431,24 @@ void SCH_IO_PCAD::populateScreen( SCH_SCREEN* aScreen, const PCAD_SCH::SHEET& aS
                               false  /* reset other fields */ );
 
         // Per-instance attribute placements override the library defaults
+        const bool instHasValueAttr = std::any_of( inst.attrs.begin(), inst.attrs.end(),
+                                                   []( const ATTR& a ) { return a.name == wxT( "Value" ); } );
+
         for( const ATTR& attr : inst.attrs )
         {
             SCH_FIELD* field = nullptr;
 
             if( attr.name == wxT( "RefDes" ) )
                 field = symbol->GetField( FIELD_T::REFERENCE );
-            else if( attr.name == wxT( "Value" ) || attr.name == wxT( "Type" ) )
+            else if( attr.name == wxT( "Value" ) || ( attr.name == wxT( "Type" ) && !instHasValueAttr ) )
                 field = symbol->GetField( FIELD_T::VALUE );
 
             if( field && ( attr.placement.x != 0 || attr.placement.y != 0 ) )
             {
-                field->SetPosition( xform( attr.placement.x, attr.placement.y ) );
+                // Instance attr points are offsets from the symbol origin, already rotated and
+                // flipped into the sheet frame (an unmoved attr equals the symbolDef default
+                // transformed by the instance), not absolute sheet coordinates.
+                field->SetPosition( xform( inst.x + attr.placement.x, inst.y + attr.placement.y ) );
                 applyTextStyle( field, attr.placement, aPcad );
                 field->SetVisible( attr.placement.isVisible );
             }

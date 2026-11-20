@@ -699,6 +699,11 @@ ATTR PCAD_SCH_PARSER::parseAttr( XNODE* aNode )
     attr.placement = parseText( aNode );
     attr.placement.text = nameAttr.AfterFirst( ' ' ).Trim( true ).Trim( false );
 
+    // P-CAD writes (isVisible True) only for displayed attributes; an attr without it is hidden
+    // (e.g. the unplaced "Type" attr every symbolDef carries). Free text stays visible by default.
+    if( childStr( aNode, wxT( "isVisible" ) ).IsEmpty() )
+        attr.placement.isVisible = false;
+
     return attr;
 }
 
