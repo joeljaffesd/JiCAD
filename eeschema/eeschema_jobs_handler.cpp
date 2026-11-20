@@ -51,6 +51,7 @@
 #include <project/project_file.h>
 #include <wx/dir.h>
 #include <wx/file.h>
+#include <wx/fileconf.h>
 #include <memory>
 #include <connection_graph.h>
 #include "eeschema_helpers.h"
@@ -1499,6 +1500,56 @@ int EESCHEMA_JOBS_HANDLER::JobImport( JOB* aJob )
     case JOB_SCH_IMPORT::FORMAT::ORCAD:      fileType = SCH_IO_MGR::SCH_ORCAD;           break;
     }
 
+    // An Altium project (.PrjPcb) imports all of its schematic documents, as the project manager's
+    // Import Non-KiCad Project does; flat designs have no top sheet that reaches the others.
+    std::map<std::string, UTF8> projectProps;
+    bool isAltiumProject = !wxFileName( job->m_inputFile ).GetExt().CmpNoCase( wxS( "PrjPcb" ) );
+
+    if( isAltiumProject )
+    {
+        wxFileName   prjFn( job->m_inputFile );
+        wxFileConfig config( wxEmptyString, wxEmptyString, wxEmptyString, prjFn.GetFullPath(),
+                             wxCONFIG_USE_NO_ESCAPE_CHARACTERS );
+        std::set<wxString> schFiles;
+        wxString           group;
+        long               groupId;
+
+        prjFn.MakeAbsolute();
+
+        for( bool more = config.GetFirstGroup( group, groupId ); more;
+             more = config.GetNextGroup( group, groupId ) )
+        {
+            long docNumber;
+
+            if( !group.StartsWith( wxS( "Document" ) ) || !group.Mid( 8 ).ToLong( &docNumber ) )
+                continue;
+
+            wxFileName fn( config.Read( group + wxS( "/DocumentPath" ), wxEmptyString ), wxPATH_WIN );
+
+            if( !fn.IsAbsolute() )
+                fn.MakeAbsolute( prjFn.GetPath() );
+
+            if( !fn.GetExt().CmpNoCase( wxS( "SchDoc" ) ) && fn.FileExists() )
+                schFiles.insert( fn.GetFullPath() );
+        }
+
+        if( schFiles.empty() )
+        {
+            m_reporter->Report( wxString::Format( _( "No schematic documents found in '%s'\n" ),
+                                                  job->m_inputFile ),
+                                RPT_SEVERITY_INFO );
+            return CLI::EXIT_CODES::ERR_UNKNOWN_FILE_FORMAT;
+        }
+
+        projectProps["project_file"] = prjFn.GetFullPath().ToStdString();
+        int ii = 0;
+
+        for( const wxString& path : schFiles )
+            projectProps["sch" + std::to_string( ii++ )] = path.ToStdString();
+
+        fileType = SCH_IO_MGR::SCH_ALTIUM;
+    }
+
     if( fileType == SCH_IO_MGR::SCH_FILE_UNKNOWN )
     {
         // Quiet sentinel: lets the top-level `import` command treat the file as not-a-schematic.
@@ -1589,7 +1640,10 @@ int EESCHEMA_JOBS_HANDLER::JobImport( JOB* aJob )
                                               inputFn.GetFullPath(), formatName ),
                             RPT_SEVERITY_INFO );
 
-        loadedSheet = pi->LoadSchematicFile( inputFn.GetFullPath(), schematic.get() );
+        if( isAltiumProject )
+            loadedSheet = pi->LoadSchematicFile( wxEmptyString, schematic.get(), nullptr, &projectProps );
+        else
+            loadedSheet = pi->LoadSchematicFile( inputFn.GetFullPath(), schematic.get() );
 
         if( !loadedSheet )
         {

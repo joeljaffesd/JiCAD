@@ -5564,25 +5564,24 @@ void ALTIUM_PCB::HelperSetTextboxAlignmentAndPos( const ATEXT6& aElem, PCB_TEXTB
     ALTIUM_TEXT_POSITION justification = aElem.isJustificationValid ? aElem.textbox_rect_justification
                                                                     : ALTIUM_TEXT_POSITION::LEFT_BOTTOM;
 
+    // Textboxes justify vertically too; a bottom-justified Altium text frame imported as top-justified
+    // sits a line or more higher than in Altium.
     switch( justification )
     {
     case ALTIUM_TEXT_POSITION::LEFT_TOP:
     case ALTIUM_TEXT_POSITION::LEFT_CENTER:
     case ALTIUM_TEXT_POSITION::LEFT_BOTTOM:
         aTextbox->SetHorizJustify( GR_TEXT_H_ALIGN_LEFT );
-        aTextbox->SetVertJustify( GR_TEXT_V_ALIGN_TOP );
         break;
     case ALTIUM_TEXT_POSITION::CENTER_TOP:
     case ALTIUM_TEXT_POSITION::CENTER_CENTER:
     case ALTIUM_TEXT_POSITION::CENTER_BOTTOM:
         aTextbox->SetHorizJustify( GR_TEXT_H_ALIGN_CENTER );
-        aTextbox->SetVertJustify( GR_TEXT_V_ALIGN_TOP );
         break;
     case ALTIUM_TEXT_POSITION::RIGHT_TOP:
     case ALTIUM_TEXT_POSITION::RIGHT_CENTER:
     case ALTIUM_TEXT_POSITION::RIGHT_BOTTOM:
         aTextbox->SetHorizJustify( GR_TEXT_H_ALIGN_RIGHT );
-        aTextbox->SetVertJustify( GR_TEXT_V_ALIGN_TOP );
         break;
     default:
         if( m_reporter )
@@ -5595,6 +5594,27 @@ void ALTIUM_PCB::HelperSetTextboxAlignmentAndPos( const ATEXT6& aElem, PCB_TEXTB
 
         aTextbox->SetHorizJustify( GR_TEXT_H_ALIGN_LEFT );
         aTextbox->SetVertJustify( GR_TEXT_V_ALIGN_TOP );
+        break;
+    }
+
+    switch( justification )
+    {
+    case ALTIUM_TEXT_POSITION::LEFT_TOP:
+    case ALTIUM_TEXT_POSITION::CENTER_TOP:
+    case ALTIUM_TEXT_POSITION::RIGHT_TOP:
+        aTextbox->SetVertJustify( GR_TEXT_V_ALIGN_TOP );
+        break;
+    case ALTIUM_TEXT_POSITION::LEFT_CENTER:
+    case ALTIUM_TEXT_POSITION::CENTER_CENTER:
+    case ALTIUM_TEXT_POSITION::RIGHT_CENTER:
+        aTextbox->SetVertJustify( GR_TEXT_V_ALIGN_CENTER );
+        break;
+    case ALTIUM_TEXT_POSITION::LEFT_BOTTOM:
+    case ALTIUM_TEXT_POSITION::CENTER_BOTTOM:
+    case ALTIUM_TEXT_POSITION::RIGHT_BOTTOM:
+        aTextbox->SetVertJustify( GR_TEXT_V_ALIGN_BOTTOM );
+        break;
+    default:
         break;
     }
 
